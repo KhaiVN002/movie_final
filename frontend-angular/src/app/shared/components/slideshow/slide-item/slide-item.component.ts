@@ -18,7 +18,7 @@ import { LoaderService } from "../../../../core/services/ui/loader.service";
 })
 class SlideItemComponent {
     @Input() href?: string;
-    @Input() routerLink?: string;
+    @Input() routerLink?: string | any[];
 
     constructor(
         public elementRef: ElementRef

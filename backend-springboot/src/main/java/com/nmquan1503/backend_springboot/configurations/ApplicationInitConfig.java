@@ -6,7 +6,7 @@ import com.nmquan1503.backend_springboot.entities.location.Ward;
 import com.nmquan1503.backend_springboot.entities.movie.Movie;
 import com.nmquan1503.backend_springboot.entities.movie.MovieCategory;
 import com.nmquan1503.backend_springboot.entities.movie.MovieReview;
-import com.nmquan1503.backend_springboot.entities.movie.MovieViewHistory;
+// import com.nmquan1503.backend_springboot.entities.movie.MovieViewHistory;
 import com.nmquan1503.backend_springboot.entities.payment.PaymentMethod;
 import com.nmquan1503.backend_springboot.entities.payment.PaymentTransaction;
 import com.nmquan1503.backend_springboot.entities.payment.PaymentTransactionStatus;
@@ -22,7 +22,7 @@ import com.nmquan1503.backend_springboot.entities.user.User;
 import com.nmquan1503.backend_springboot.repositories.movie.MovieCategoryRepository;
 import com.nmquan1503.backend_springboot.repositories.movie.MovieRepository;
 import com.nmquan1503.backend_springboot.repositories.movie.MovieReviewRepository;
-import com.nmquan1503.backend_springboot.repositories.movie.MovieViewHistoryRepository;
+// import com.nmquan1503.backend_springboot.repositories.movie.MovieViewHistoryRepository;
 import com.nmquan1503.backend_springboot.repositories.payment.PaymentTransactionRepository;
 import com.nmquan1503.backend_springboot.repositories.reservation.ReservationRepository;
 import com.nmquan1503.backend_springboot.repositories.reservation.ReservationSeatRepository;
@@ -30,9 +30,9 @@ import com.nmquan1503.backend_springboot.repositories.showtime.ShowtimeRepositor
 import com.nmquan1503.backend_springboot.repositories.theater.SeatRepository;
 import com.nmquan1503.backend_springboot.repositories.ticket.TicketRepository;
 import com.nmquan1503.backend_springboot.repositories.user.UserRepository;
-import com.nmquan1503.backend_springboot.services.ApplicationInitService;
+// import com.nmquan1503.backend_springboot.services.ApplicationInitService;
 import com.nmquan1503.backend_springboot.services.movie.MovieReviewService;
-import com.nmquan1503.backend_springboot.services.movie.MovieScoreService;
+// import com.nmquan1503.backend_springboot.services.movie.MovieScoreService;
 import com.nmquan1503.backend_springboot.services.payment.PaymentTransactionStatusService;
 import com.nmquan1503.backend_springboot.utils.VnPayUtil;
 import lombok.AccessLevel;
@@ -57,7 +57,7 @@ import java.util.*;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ApplicationInitConfig {
 
-    MovieScoreService movieScoreService;
+    // MovieScoreService movieScoreService;
 
     @Bean
     ApplicationRunner applicationRunner() {

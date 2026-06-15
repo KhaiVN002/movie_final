@@ -9,8 +9,8 @@
                 [hasNavigationButtons]="true"
             >
                 <app-slide-item
-                    *ngFor="let movie of movies" 
-                    [href]="'www.google.com'"
+                    *ngFor="let movie of movies"
+                    [routerLink]="['/movies/detail', movie.id]"
                 >
                     <div class="movie-card">
                         <div class="poster" >

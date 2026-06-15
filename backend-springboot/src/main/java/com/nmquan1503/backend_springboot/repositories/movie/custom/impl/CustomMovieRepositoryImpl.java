@@ -34,40 +34,44 @@ public class CustomMovieRepositoryImpl implements CustomMovieRepository {
     public List<Movie> findTrendingMovies(int limit) {
         QMovie movie = QMovie.movie;
         QShowtime showtime = QShowtime.showtime;
-        QMovieScore movieScore = QMovieScore.movieScore;
-        List<Long> movieIds = queryFactory
-                .selectDistinct(showtime.movie.id)
-                .from(showtime)
-                .where(showtime.startTime.between(LocalDateTime.now(), LocalDateTime.now().plusDays(14)))
-                .fetch();
-        return queryFactory
-                .select(movie)
-                .from(movie)
-                .leftJoin(movieScore).on(movie.id.eq(movieScore.movie.id))
-                .where(movie.id.in(movieIds))
-                .orderBy(movieScore.finalScore.desc())
-                .limit(limit)
-                .fetch();
+        List<Movie> movies = queryFactory
+            .select(movie)
+            .from(movie)
+            .join(showtime).on(showtime.movie.id.eq(movie.id))
+            .where(showtime.startTime.between(LocalDateTime.now(), LocalDateTime.now().plusDays(14)))
+            .groupBy(movie.id)
+            .orderBy(showtime.count().desc())
+            .limit(limit)
+            .fetch();
+
+        return movies;
     }
 
     @Override
     public Page<Movie> findAllSortByFinalScore(Pageable pageable) {
         QMovie movie = QMovie.movie;
-        QMovieScore score = QMovieScore.movieScore;
+        QShowtime showtime = QShowtime.showtime;
 
+        // Lấy danh sách movie cùng số showtime trong 14 ngày tới
         List<Movie> movies = queryFactory
                 .select(movie)
                 .from(movie)
-                .join(score).on(movie.id.eq(score.movie.id))
-                .orderBy(score.finalScore.desc())
+                .join(showtime).on(showtime.movie.id.eq(movie.id))
+                .where(showtime.startTime.between(LocalDateTime.now(), LocalDateTime.now().plusDays(14)))
+                .groupBy(movie.id)
+                .orderBy(showtime.count().desc())  // trending = nhiều showtime nhất
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
 
+        // Tính tổng số movie (dùng subquery để đếm movie có showtime)
         Long total = queryFactory
-                .select(movie.count())
+                .select(movie.countDistinct())
                 .from(movie)
+                .join(showtime).on(showtime.movie.id.eq(movie.id))
+                .where(showtime.startTime.between(LocalDateTime.now(), LocalDateTime.now().plusDays(14)))
                 .fetchOne();
+
         total = total == null ? 0 : total;
 
         return new PageImpl<>(movies, pageable, total);
@@ -76,13 +80,13 @@ public class CustomMovieRepositoryImpl implements CustomMovieRepository {
     @Override
     public Page<Movie> findNowShowingSortByFinalScore(Pageable pageable) {
         QMovie movie = QMovie.movie;
-        QMovieScore movieScore = QMovieScore.movieScore;
         QShowtime showtime = QShowtime.showtime;
 
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime oneMonthAgo = now.minusMonths(1);
         LocalDateTime oneMonthLater = now.plusMonths(1);
 
+        // Lấy danh sách movie đang chiếu (có showtime trước và sau hiện tại)
         List<Long> movieIds = queryFactory
                 .select(showtime.movie.id)
                 .from(showtime)
@@ -98,38 +102,43 @@ public class CustomMovieRepositoryImpl implements CustomMovieRepository {
                 )
                 .fetch();
 
+        // Lấy movie và sắp xếp theo số lượng showtime sắp tới (trending)
         List<Movie> movies = queryFactory
                 .select(movie)
                 .from(movie)
-                .join(movieScore).on(movie.id.eq(movieScore.movieId))
-                .where(movie.id.in(movieIds))
-                .orderBy(movieScore.finalScore.desc())
+                .join(showtime).on(showtime.movie.id.eq(movie.id))
+                .where(movie.id.in(movieIds)
+                        .and(showtime.startTime.after(now))) // chỉ tính showtime sắp tới
+                .groupBy(movie.id)
+                .orderBy(showtime.count().desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
+
         return new PageImpl<>(movies, pageable, movieIds.size());
     }
 
     @Override
     public Page<Movie> findUpComingSortByFinalScore(Pageable pageable) {
         QMovie movie = QMovie.movie;
-        QMovieScore movieScore = QMovieScore.movieScore;
         QShowtime showtime = QShowtime.showtime;
 
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime oneMonthAgo = now.minusMonths(1);
 
+        // Lọc các movie sắp chiếu: có showtime > now, không có showtime trong 1 tháng trước đến now
         List<Long> movieIds = queryFactory
                 .select(showtime.movie.id)
                 .from(showtime)
                 .where(showtime.startTime.goe(oneMonthAgo))
                 .groupBy(showtime.movie.id)
                 .having(
+                        // ít nhất 1 showtime sắp tới
                         Expressions.numberTemplate(Long.class,
                                 "SUM(CASE WHEN {0} > {1} THEN 1 ELSE 0 END)",
                                 showtime.startTime, now
                         ).gt(0),
-
+                        // không có showtime trong 1 tháng trước đến now
                         Expressions.numberTemplate(Long.class,
                                 "SUM(CASE WHEN {0} BETWEEN {1} AND {2} THEN 1 ELSE 0 END)",
                                 showtime.startTime, oneMonthAgo, now
@@ -137,27 +146,35 @@ public class CustomMovieRepositoryImpl implements CustomMovieRepository {
                 )
                 .fetch();
 
+        // Lấy movie và sắp xếp theo số lượng showtime sắp tới (trending)
         List<Movie> movies = queryFactory
                 .select(movie)
                 .from(movie)
-                .join(movieScore).on(movieScore.movie.id.eq(movie.id))
-                .where(movie.id.in(movieIds))
+                .join(showtime).on(showtime.movie.id.eq(movie.id))
+                .where(movie.id.in(movieIds).and(showtime.startTime.after(now))) // chỉ showtime sắp tới
+                .groupBy(movie.id)
+                .orderBy(showtime.count().desc()) // nhiều showtime sắp tới → trending
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
-                .orderBy(movieScore.finalScore.desc())
                 .fetch();
+
         return new PageImpl<>(movies, pageable, movieIds.size());
     }
 
     @Override
     public List<Movie> findAllSortByFinalScore() {
         QMovie movie = QMovie.movie;
-        QMovieScore score = QMovieScore.movieScore;
+        QShowtime showtime = QShowtime.showtime;
+
+        LocalDateTime now = LocalDateTime.now();
+
         return queryFactory
                 .select(movie)
                 .from(movie)
-                .join(score).on(score.movie.id.eq(movie.id))
-                .orderBy(score.finalScore.desc())
+                .join(showtime).on(showtime.movie.id.eq(movie.id))
+                .where(showtime.startTime.after(now)) // chỉ tính showtime trong tương lai
+                .groupBy(movie.id)
+                .orderBy(showtime.count().desc()) // xếp theo số lượng showtime
                 .fetch();
     }
 
