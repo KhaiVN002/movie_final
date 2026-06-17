@@ -1,7 +1,14 @@
-import { CommonModule } from "@angular/common";
-import { Component, OnInit } from "@angular/core";
-import { PaymentTransactionService } from "../../core/services/payment/payment-transaction.service";
+import { CommonModule, isPlatformBrowser } from "@angular/common";
+import {
+    Component,
+    Inject,
+    OnInit,
+    PLATFORM_ID
+} from "@angular/core";
 import { ActivatedRoute, RouterModule } from "@angular/router";
+import { switchMap, take } from "rxjs/operators";
+
+import { PaymentTransactionService } from "../../core/services/payment/payment-transaction.service";
 import { LoadingOverlayComponent } from "../../shared/components/loading-overlay/loading-overlay.component";
 
 @Component({
@@ -20,35 +27,42 @@ import { LoadingOverlayComponent } from "../../shared/components/loading-overlay
 export class PaymentResultPageComponent implements OnInit {
 
     status: 'success' | 'fail' | 'loading' = 'loading';
-    private alreadyHandled: boolean = false;
 
     constructor(
+        @Inject(PLATFORM_ID)
+        private platformId: Object,
+
         private route: ActivatedRoute,
         private paymentTransactionService: PaymentTransactionService
     ) { }
 
     ngOnInit(): void {
-        this.route.queryParams.subscribe(async (params) => {
-            if (this.alreadyHandled) {
-                return;
-            }
-            this.alreadyHandled = true;
-            this.paymentTransactionService.handleReturn(params).subscribe({
+
+        if (!isPlatformBrowser(this.platformId)) {
+            return;
+        }
+
+        this.route.queryParams
+            .pipe(
+                take(1),
+                switchMap(params =>
+                    this.paymentTransactionService.handleReturn(params)
+                )
+            )
+            .subscribe({
                 next: (response) => {
-                    if (response.success) {
-                        this.status = 'success';
-                    }
-                    else {
-                        console.log(`api error: ${response.message}`);
-                        this.status = 'fail';
+                    this.status = response.success
+                        ? 'success'
+                        : 'fail';
+
+                    if (!response.success) {
+                        console.error(response.message);
                     }
                 },
                 error: (err) => {
-                    console.log(err.error.message);
+                    console.error(err);
                     this.status = 'fail';
                 }
-            })
-        })
+            });
     }
-
 }

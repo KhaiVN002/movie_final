@@ -19,6 +19,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -72,6 +73,7 @@ public class PaymentTransactionService {
                 .build();
     }
 
+    @Transactional
     public boolean callbackHandler(Map<String, String> params) {
         PaymentStrategy paymentStrategy = paymentStrategyFactory.detectPaymentStrategy(params);
         PaymentCallbackResult result = paymentStrategy.handleCallback(params);
@@ -81,7 +83,8 @@ public class PaymentTransactionService {
         PaymentTransaction paymentTransaction = paymentTransactionRepository.findByTransactionId(result.getTransactionId())
                 .orElseThrow(() -> new GeneralException(ResponseCode.PAYMENT_TRANSACTION_NOT_FOUND));
         if (paymentTransaction.getStatus().getName().equals("SUCCESS")) {
-            throw new GeneralException(ResponseCode.PAYMENT_TRANSACTION_PAID);
+            // throw new GeneralException(ResponseCode.PAYMENT_TRANSACTION_PAID);
+            return true;
         }
         paymentTransaction.setStatus(paymentTransactionStatusService.fetchByName("SUCCESS"));
         paymentTransactionRepository.save(paymentTransaction);
@@ -89,5 +92,4 @@ public class PaymentTransactionService {
         ticketService.createTicket(paymentTransaction.getReservation());
         return true;
     }
-
 }
