@@ -54,12 +54,7 @@ public class AuthenticationService {
         String deviceInfo = httpServletRequest.getHeader("User-Agent");
         RefreshToken refreshToken = jwtUtil.generateRefreshToken(user, deviceInfo);
         refreshTokenService.save(refreshToken);
-        Cookie cookie = new Cookie("refreshToken", refreshToken.getId());
-        cookie.setHttpOnly(true);
-        cookie.setSecure(true);
-        cookie.setPath("/");
-        cookie.setMaxAge(refreshTokenExpirationTime);
-        httpServletResponse.addCookie(cookie);
+        httpServletResponse.addCookie(createRefreshTokenCookie(httpServletRequest, refreshToken.getId(), refreshTokenExpirationTime));
         return AuthenticationResponse.builder()
                 .authenticated(true)
                 .accessToken(accessToken)
@@ -95,12 +90,7 @@ public class AuthenticationService {
             throw new GeneralException(ResponseCode.UNAUTHORIZED);
         }
         refreshTokenService.updateExpirationTime(refreshToken);
-        Cookie cookie = new Cookie("refreshToken", refreshToken.getId());
-        cookie.setHttpOnly(true);
-        cookie.setSecure(true);
-        cookie.setPath("/");
-        cookie.setMaxAge(refreshTokenExpirationTime);
-        response.addCookie(cookie);
+        response.addCookie(createRefreshTokenCookie(request, refreshToken.getId(), refreshTokenExpirationTime));
         User user = refreshToken.getUser();
         List<Role> roles = roleService.fetchRolesOfUserId(user.getId());
         return AuthenticationResponse.builder()
@@ -121,12 +111,23 @@ public class AuthenticationService {
             }
         }
         refreshTokenService.deleteById(refreshTokenId);
-        Cookie cookie = new Cookie("refreshToken", null);
-        cookie.setHttpOnly(true);
-        cookie.setSecure(true);
-        cookie.setPath("/");
-        cookie.setMaxAge(0);
+        Cookie cookie = createRefreshTokenCookie(request, null, 0);
         response.addCookie(cookie);
+    }
+
+    private Cookie createRefreshTokenCookie(HttpServletRequest request, String value, int maxAge) {
+        Cookie cookie = new Cookie("refreshToken", value);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(isHttpsRequest(request));
+        cookie.setPath("/");
+        cookie.setMaxAge(maxAge);
+        cookie.setAttribute("SameSite", "Lax");
+        return cookie;
+    }
+
+    private boolean isHttpsRequest(HttpServletRequest request) {
+        String forwardedProto = request.getHeader("X-Forwarded-Proto");
+        return request.isSecure() || "https".equalsIgnoreCase(forwardedProto);
     }
 
     public Long getCurrentUserId() {

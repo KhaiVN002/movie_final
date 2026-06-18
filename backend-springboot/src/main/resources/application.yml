@@ -29,7 +29,9 @@ spring:
         password: ${REDIS_PASSWORD}
         database: ${REDIS_DATABASE}
         timeout: 2000
-
+    web:
+        resources:
+            static-locations: file:uploads/
     devtools:
         restart:
             enabled: true
