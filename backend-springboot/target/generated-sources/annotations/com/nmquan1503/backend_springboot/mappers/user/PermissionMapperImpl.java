@@ -1,0 +1,30 @@
+package com.nmquan1503.backend_springboot.mappers.user;
+
+import com.nmquan1503.backend_springboot.dtos.responses.user.PermissionResponse;
+import com.nmquan1503.backend_springboot.entities.user.Permission;
+import javax.annotation.processing.Generated;
+import org.springframework.stereotype.Component;
+
+@Generated(
+    value = "org.mapstruct.ap.MappingProcessor",
+    date = "2026-06-18T15:35:59+0700",
+    comments = "version: 1.6.3, compiler: javac, environment: Java 21.0.10 (Eclipse Adoptium)"
+)
+@Component
+public class PermissionMapperImpl implements PermissionMapper {
+
+    @Override
+    public PermissionResponse toPermissionResponse(Permission permission) {
+        if ( permission == null ) {
+            return null;
+        }
+
+        PermissionResponse.PermissionResponseBuilder permissionResponse = PermissionResponse.builder();
+
+        permissionResponse.id( permission.getId() );
+        permissionResponse.name( permission.getName() );
+        permissionResponse.description( permission.getDescription() );
+
+        return permissionResponse.build();
+    }
+}

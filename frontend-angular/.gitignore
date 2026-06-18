@@ -1,65 +1,65 @@
-# Node dependencies
-node_modules/
+# # Node dependencies
+# node_modules/
 
-# Build output
-dist/
-dist-ssr/
-out-tsc/
-build/
+# # Build output
+# dist/
+# dist-ssr/
+# out-tsc/
+# build/
 
-# Angular cache
-.angular/
-.cache/
+# # Angular cache
+# .angular/
+# .cache/
 
-# Vite (nếu dùng Angular + Vite SSR)
-.vite/
+# # Vite (nếu dùng Angular + Vite SSR)
+# .vite/
 
-# Environment files
-.env
-.env.local
-.env.*.local
+# # Environment files
+# .env
+# .env.local
+# .env.*.local
 
-# Logs
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
+# # Logs
+# npm-debug.log*
+# yarn-debug.log*
+# yarn-error.log*
+# pnpm-debug.log*
 
-# Coverage reports
-coverage/
+# # Coverage reports
+# coverage/
 
-# IDE files
-.vscode/
-!.vscode/extensions.json
-.idea/
-*.swp
-*.swo
+# # IDE files
+# .vscode/
+# !.vscode/extensions.json
+# .idea/
+# *.swp
+# *.swo
 
-# OS files
-.DS_Store
-Thumbs.db
+# # OS files
+# .DS_Store
+# Thumbs.db
 
-# Angular specific
-*.log
+# # Angular specific
+# *.log
 
-# Compiled TypeScript
-*.tsbuildinfo
+# # Compiled TypeScript
+# *.tsbuildinfo
 
-# Angular SSR (nếu có)
-server/
-client/
+# # Angular SSR (nếu có)
+# server/
+# client/
 
-# Temporary files
-.tmp/
-.temp/
+# # Temporary files
+# .tmp/
+# .temp/
 
-# Cypress (if used)
-cypress/videos/
-cypress/screenshots/
+# # Cypress (if used)
+# cypress/videos/
+# cypress/screenshots/
 
-# Firebase (if used)
-.firebase/
+# # Firebase (if used)
+# .firebase/
 
-# Misc
-*.pid
-*.seed
+# # Misc
+# *.pid
+# *.seed
