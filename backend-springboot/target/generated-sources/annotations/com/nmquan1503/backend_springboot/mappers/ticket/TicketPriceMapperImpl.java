@@ -9,8 +9,8 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2026-06-18T15:35:58+0700",
-    comments = "version: 1.6.3, compiler: javac, environment: Java 21.0.10 (Eclipse Adoptium)"
+    date = "2026-06-19T10:11:08+0700",
+    comments = "version: 1.6.3, compiler: Eclipse JDT (IDE) 3.46.0.v20260407-0427, environment: Java 21.0.10 (Eclipse Adoptium)"
 )
 @Component
 public class TicketPriceMapperImpl implements TicketPriceMapper {
@@ -23,11 +23,11 @@ public class TicketPriceMapperImpl implements TicketPriceMapper {
 
         TicketPriceResponse.TicketPriceResponseBuilder ticketPriceResponse = TicketPriceResponse.builder();
 
-        ticketPriceResponse.id( ticketPrice.getId() );
         ticketPriceResponse.dayOfWeek( ticketPrice.getDayOfWeek() );
-        ticketPriceResponse.timeRangeStart( ticketPrice.getTimeRangeStart() );
-        ticketPriceResponse.timeRangeEnd( ticketPrice.getTimeRangeEnd() );
+        ticketPriceResponse.id( ticketPrice.getId() );
         ticketPriceResponse.price( ticketPrice.getPrice() );
+        ticketPriceResponse.timeRangeEnd( ticketPrice.getTimeRangeEnd() );
+        ticketPriceResponse.timeRangeStart( ticketPrice.getTimeRangeStart() );
 
         return ticketPriceResponse.build();
     }

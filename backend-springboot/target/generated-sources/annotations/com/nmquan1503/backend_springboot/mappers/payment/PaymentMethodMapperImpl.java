@@ -9,8 +9,8 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2026-06-18T15:35:59+0700",
-    comments = "version: 1.6.3, compiler: javac, environment: Java 21.0.10 (Eclipse Adoptium)"
+    date = "2026-06-19T10:11:09+0700",
+    comments = "version: 1.6.3, compiler: Eclipse JDT (IDE) 3.46.0.v20260407-0427, environment: Java 21.0.10 (Eclipse Adoptium)"
 )
 @Component
 public class PaymentMethodMapperImpl implements PaymentMethodMapper {
@@ -25,8 +25,8 @@ public class PaymentMethodMapperImpl implements PaymentMethodMapper {
 
         paymentMethodDetailResponse.id( paymentMethod.getId() );
         paymentMethodDetailResponse.name( paymentMethod.getName() );
-        paymentMethodDetailResponse.thumbnailURL( paymentMethod.getThumbnailURL() );
         paymentMethodDetailResponse.status( paymentMethodStatusToPaymentMethodStatusResponse( paymentMethod.getStatus() ) );
+        paymentMethodDetailResponse.thumbnailURL( paymentMethod.getThumbnailURL() );
 
         return paymentMethodDetailResponse.build();
     }

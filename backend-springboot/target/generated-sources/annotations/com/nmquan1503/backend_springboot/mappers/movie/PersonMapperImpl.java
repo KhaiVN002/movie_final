@@ -7,8 +7,8 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2026-06-18T15:35:59+0700",
-    comments = "version: 1.6.3, compiler: javac, environment: Java 21.0.10 (Eclipse Adoptium)"
+    date = "2026-06-19T10:11:09+0700",
+    comments = "version: 1.6.3, compiler: Eclipse JDT (IDE) 3.46.0.v20260407-0427, environment: Java 21.0.10 (Eclipse Adoptium)"
 )
 @Component
 public class PersonMapperImpl implements PersonMapper {
@@ -21,9 +21,9 @@ public class PersonMapperImpl implements PersonMapper {
 
         PersonPreviewResponse.PersonPreviewResponseBuilder personPreviewResponse = PersonPreviewResponse.builder();
 
+        personPreviewResponse.avatarURL( person.getAvatarURL() );
         personPreviewResponse.id( person.getId() );
         personPreviewResponse.name( person.getName() );
-        personPreviewResponse.avatarURL( person.getAvatarURL() );
 
         return personPreviewResponse.build();
     }

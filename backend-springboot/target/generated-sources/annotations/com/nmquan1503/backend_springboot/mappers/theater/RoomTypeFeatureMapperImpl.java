@@ -9,8 +9,8 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2026-06-18T15:35:59+0700",
-    comments = "version: 1.6.3, compiler: javac, environment: Java 21.0.10 (Eclipse Adoptium)"
+    date = "2026-06-19T10:11:09+0700",
+    comments = "version: 1.6.3, compiler: Eclipse JDT (IDE) 3.46.0.v20260407-0427, environment: Java 21.0.10 (Eclipse Adoptium)"
 )
 @Component
 public class RoomTypeFeatureMapperImpl implements RoomTypeFeatureMapper {
@@ -23,10 +23,10 @@ public class RoomTypeFeatureMapperImpl implements RoomTypeFeatureMapper {
 
         RoomTypeFeatureResponse.RoomTypeFeatureResponseBuilder roomTypeFeatureResponse = RoomTypeFeatureResponse.builder();
 
+        roomTypeFeatureResponse.description( roomTypeFeature.getDescription() );
         roomTypeFeatureResponse.id( roomTypeFeature.getId() );
         roomTypeFeatureResponse.imageURL( roomTypeFeature.getImageURL() );
         roomTypeFeatureResponse.title( roomTypeFeature.getTitle() );
-        roomTypeFeatureResponse.description( roomTypeFeature.getDescription() );
 
         return roomTypeFeatureResponse.build();
     }

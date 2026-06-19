@@ -18,8 +18,8 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2026-06-18T15:35:59+0700",
-    comments = "version: 1.6.3, compiler: javac, environment: Java 21.0.10 (Eclipse Adoptium)"
+    date = "2026-06-19T10:11:09+0700",
+    comments = "version: 1.6.3, compiler: Eclipse JDT (IDE) 3.46.0.v20260407-0427, environment: Java 21.0.10 (Eclipse Adoptium)"
 )
 @Component
 public class UserMapperImpl implements UserMapper {
@@ -32,11 +32,11 @@ public class UserMapperImpl implements UserMapper {
 
         User.UserBuilder user = User.builder();
 
-        user.fullName( request.getFullName() );
-        user.phone( request.getPhone() );
-        user.email( request.getEmail() );
-        user.password( request.getPassword() );
         user.birthday( request.getBirthday() );
+        user.email( request.getEmail() );
+        user.fullName( request.getFullName() );
+        user.password( request.getPassword() );
+        user.phone( request.getPhone() );
         user.specificAddress( request.getSpecificAddress() );
 
         return user.build();
@@ -48,11 +48,11 @@ public class UserMapperImpl implements UserMapper {
             return;
         }
 
-        if ( request.getFullName() != null ) {
-            user.setFullName( request.getFullName() );
-        }
         if ( request.getAvatarURL() != null ) {
             user.setAvatarURL( request.getAvatarURL() );
+        }
+        if ( request.getFullName() != null ) {
+            user.setFullName( request.getFullName() );
         }
         if ( request.getPassword() != null ) {
             user.setPassword( request.getPassword() );
@@ -70,17 +70,17 @@ public class UserMapperImpl implements UserMapper {
 
         UserDetailResponse.UserDetailResponseBuilder userDetailResponse = UserDetailResponse.builder();
 
-        userDetailResponse.id( user.getId() );
-        userDetailResponse.fullName( user.getFullName() );
         userDetailResponse.avatarURL( user.getAvatarURL() );
-        userDetailResponse.phone( user.getPhone() );
-        userDetailResponse.email( user.getEmail() );
         if ( user.getBirthday() != null ) {
             userDetailResponse.birthday( user.getBirthday().atStartOfDay() );
         }
+        userDetailResponse.email( user.getEmail() );
+        userDetailResponse.fullName( user.getFullName() );
         userDetailResponse.gender( genderToGenderOptionResponse( user.getGender() ) );
-        userDetailResponse.ward( wardToWardDetailResponse( user.getWard() ) );
+        userDetailResponse.id( user.getId() );
+        userDetailResponse.phone( user.getPhone() );
         userDetailResponse.specificAddress( user.getSpecificAddress() );
+        userDetailResponse.ward( wardToWardDetailResponse( user.getWard() ) );
 
         return userDetailResponse.build();
     }
@@ -93,9 +93,9 @@ public class UserMapperImpl implements UserMapper {
 
         UserPreviewResponse.UserPreviewResponseBuilder userPreviewResponse = UserPreviewResponse.builder();
 
-        userPreviewResponse.id( user.getId() );
-        userPreviewResponse.fullName( user.getFullName() );
         userPreviewResponse.avatarURL( user.getAvatarURL() );
+        userPreviewResponse.fullName( user.getFullName() );
+        userPreviewResponse.id( user.getId() );
 
         return userPreviewResponse.build();
     }
@@ -147,9 +147,9 @@ public class UserMapperImpl implements UserMapper {
 
         WardDetailResponse.WardDetailResponseBuilder wardDetailResponse = WardDetailResponse.builder();
 
+        wardDetailResponse.district( districtToDistrictODetailResponse( ward.getDistrict() ) );
         wardDetailResponse.id( ward.getId() );
         wardDetailResponse.name( ward.getName() );
-        wardDetailResponse.district( districtToDistrictODetailResponse( ward.getDistrict() ) );
 
         return wardDetailResponse.build();
     }

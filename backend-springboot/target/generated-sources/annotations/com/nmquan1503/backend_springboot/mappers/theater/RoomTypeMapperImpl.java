@@ -12,8 +12,8 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2026-06-18T15:35:59+0700",
-    comments = "version: 1.6.3, compiler: javac, environment: Java 21.0.10 (Eclipse Adoptium)"
+    date = "2026-06-19T10:11:09+0700",
+    comments = "version: 1.6.3, compiler: Eclipse JDT (IDE) 3.46.0.v20260407-0427, environment: Java 21.0.10 (Eclipse Adoptium)"
 )
 @Component
 public class RoomTypeMapperImpl implements RoomTypeMapper {
@@ -26,9 +26,9 @@ public class RoomTypeMapperImpl implements RoomTypeMapper {
 
         RoomTypeSimpleResponse.RoomTypeSimpleResponseBuilder roomTypeSimpleResponse = RoomTypeSimpleResponse.builder();
 
+        roomTypeSimpleResponse.extraFee( roomType.getExtraFee() );
         roomTypeSimpleResponse.id( roomType.getId() );
         roomTypeSimpleResponse.name( roomType.getName() );
-        roomTypeSimpleResponse.extraFee( roomType.getExtraFee() );
 
         return roomTypeSimpleResponse.build();
     }
@@ -43,8 +43,8 @@ public class RoomTypeMapperImpl implements RoomTypeMapper {
 
         roomTypePreviewResponse.id( roomType.getId() );
         roomTypePreviewResponse.name( roomType.getName() );
-        roomTypePreviewResponse.thumbnailURL( roomType.getThumbnailURL() );
         roomTypePreviewResponse.slogan( roomType.getSlogan() );
+        roomTypePreviewResponse.thumbnailURL( roomType.getThumbnailURL() );
 
         return roomTypePreviewResponse.build();
     }
@@ -71,9 +71,9 @@ public class RoomTypeMapperImpl implements RoomTypeMapper {
 
         RoomTypeIconResponse.RoomTypeIconResponseBuilder roomTypeIconResponse = RoomTypeIconResponse.builder();
 
+        roomTypeIconResponse.iconURL( roomType.getIconURL() );
         roomTypeIconResponse.id( roomType.getId() );
         roomTypeIconResponse.name( roomType.getName() );
-        roomTypeIconResponse.iconURL( roomType.getIconURL() );
 
         return roomTypeIconResponse.build();
     }
@@ -100,9 +100,9 @@ public class RoomTypeMapperImpl implements RoomTypeMapper {
 
         RoomTypeDetailResponse.RoomTypeDetailResponseBuilder roomTypeDetailResponse = RoomTypeDetailResponse.builder();
 
+        roomTypeDetailResponse.iconURL( roomType.getIconURL() );
         roomTypeDetailResponse.id( roomType.getId() );
         roomTypeDetailResponse.name( roomType.getName() );
-        roomTypeDetailResponse.iconURL( roomType.getIconURL() );
         roomTypeDetailResponse.overview( roomType.getOverview() );
 
         return roomTypeDetailResponse.build();

@@ -12,8 +12,8 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2026-06-18T15:35:59+0700",
-    comments = "version: 1.6.3, compiler: javac, environment: Java 21.0.10 (Eclipse Adoptium)"
+    date = "2026-06-19T10:11:09+0700",
+    comments = "version: 1.6.3, compiler: Eclipse JDT (IDE) 3.46.0.v20260407-0427, environment: Java 21.0.10 (Eclipse Adoptium)"
 )
 @Component
 public class MovieCastMapperImpl implements MovieCastMapper {
@@ -29,10 +29,10 @@ public class MovieCastMapperImpl implements MovieCastMapper {
 
         MovieCastResponse.MovieCastResponseBuilder movieCastResponse = MovieCastResponse.builder();
 
-        movieCastResponse.id( movieCast.getId() );
-        movieCastResponse.person( personMapper.toPersonPreviewResponse( movieCast.getPerson() ) );
         movieCastResponse.character( movieCast.getCharacter() );
+        movieCastResponse.id( movieCast.getId() );
         movieCastResponse.order( movieCast.getOrder() );
+        movieCastResponse.person( personMapper.toPersonPreviewResponse( movieCast.getPerson() ) );
 
         return movieCastResponse.build();
     }

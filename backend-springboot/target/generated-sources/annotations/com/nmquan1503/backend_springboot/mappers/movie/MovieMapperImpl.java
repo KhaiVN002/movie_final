@@ -17,8 +17,8 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2026-06-18T15:35:59+0700",
-    comments = "version: 1.6.3, compiler: javac, environment: Java 21.0.10 (Eclipse Adoptium)"
+    date = "2026-06-19T10:11:08+0700",
+    comments = "version: 1.6.3, compiler: Eclipse JDT (IDE) 3.46.0.v20260407-0427, environment: Java 21.0.10 (Eclipse Adoptium)"
 )
 @Component
 public class MovieMapperImpl implements MovieMapper {
@@ -34,10 +34,10 @@ public class MovieMapperImpl implements MovieMapper {
 
         MoviePreviewResponse.MoviePreviewResponseBuilder moviePreviewResponse = MoviePreviewResponse.builder();
 
-        moviePreviewResponse.id( movie.getId() );
-        moviePreviewResponse.title( movie.getTitle() );
-        moviePreviewResponse.posterURL( movie.getPosterURL() );
         moviePreviewResponse.ageRating( ageRatingMapper.toAgeRatingSummaryResponse( movie.getAgeRating() ) );
+        moviePreviewResponse.id( movie.getId() );
+        moviePreviewResponse.posterURL( movie.getPosterURL() );
+        moviePreviewResponse.title( movie.getTitle() );
 
         return moviePreviewResponse.build();
     }
@@ -50,12 +50,12 @@ public class MovieMapperImpl implements MovieMapper {
 
         MovieListItemResponse.MovieListItemResponseBuilder movieListItemResponse = MovieListItemResponse.builder();
 
+        movieListItemResponse.ageRating( ageRatingMapper.toAgeRatingSummaryResponse( movie.getAgeRating() ) );
+        movieListItemResponse.duration( movie.getDuration() );
         movieListItemResponse.id( movie.getId() );
-        movieListItemResponse.title( movie.getTitle() );
         movieListItemResponse.posterURL( movie.getPosterURL() );
         movieListItemResponse.releasedDate( movie.getReleasedDate() );
-        movieListItemResponse.duration( movie.getDuration() );
-        movieListItemResponse.ageRating( ageRatingMapper.toAgeRatingSummaryResponse( movie.getAgeRating() ) );
+        movieListItemResponse.title( movie.getTitle() );
 
         return movieListItemResponse.build();
     }
@@ -68,17 +68,17 @@ public class MovieMapperImpl implements MovieMapper {
 
         MovieDetailResponse.MovieDetailResponseBuilder movieDetailResponse = MovieDetailResponse.builder();
 
-        movieDetailResponse.id( movie.getId() );
-        movieDetailResponse.title( movie.getTitle() );
-        movieDetailResponse.posterURL( movie.getPosterURL() );
-        movieDetailResponse.backdropURL( movie.getBackdropURL() );
-        movieDetailResponse.trailerURL( movie.getTrailerURL() );
-        movieDetailResponse.tagline( movie.getTagline() );
-        movieDetailResponse.overview( movie.getOverview() );
-        movieDetailResponse.releasedDate( movie.getReleasedDate() );
-        movieDetailResponse.duration( movie.getDuration() );
-        movieDetailResponse.originalLanguage( languageToLanguageResponse( movie.getOriginalLanguage() ) );
         movieDetailResponse.ageRating( ageRatingToAgeRatingDetailResponse( movie.getAgeRating() ) );
+        movieDetailResponse.backdropURL( movie.getBackdropURL() );
+        movieDetailResponse.duration( movie.getDuration() );
+        movieDetailResponse.id( movie.getId() );
+        movieDetailResponse.originalLanguage( languageToLanguageResponse( movie.getOriginalLanguage() ) );
+        movieDetailResponse.overview( movie.getOverview() );
+        movieDetailResponse.posterURL( movie.getPosterURL() );
+        movieDetailResponse.releasedDate( movie.getReleasedDate() );
+        movieDetailResponse.tagline( movie.getTagline() );
+        movieDetailResponse.title( movie.getTitle() );
+        movieDetailResponse.trailerURL( movie.getTrailerURL() );
 
         return movieDetailResponse.build();
     }
@@ -91,13 +91,13 @@ public class MovieMapperImpl implements MovieMapper {
 
         Movie.MovieBuilder movie = Movie.builder();
 
-        movie.title( request.getTitle() );
-        movie.posterURL( request.getPosterURL() );
-        movie.trailerURL( request.getTrailerURL() );
-        movie.tagline( request.getTagline() );
-        movie.overview( request.getOverview() );
-        movie.releasedDate( request.getReleasedDate() );
         movie.duration( request.getDuration() );
+        movie.overview( request.getOverview() );
+        movie.posterURL( request.getPosterURL() );
+        movie.releasedDate( request.getReleasedDate() );
+        movie.tagline( request.getTagline() );
+        movie.title( request.getTitle() );
+        movie.trailerURL( request.getTrailerURL() );
 
         return movie.build();
     }
@@ -108,14 +108,14 @@ public class MovieMapperImpl implements MovieMapper {
             return;
         }
 
-        movie.setTitle( request.getTitle() );
-        movie.setPosterURL( request.getPosterURL() );
         movie.setBackdropURL( request.getBackdropURL() );
-        movie.setTrailerURL( request.getTrailerURL() );
-        movie.setTagline( request.getTagline() );
-        movie.setOverview( request.getOverview() );
-        movie.setReleasedDate( request.getReleasedDate() );
         movie.setDuration( request.getDuration() );
+        movie.setOverview( request.getOverview() );
+        movie.setPosterURL( request.getPosterURL() );
+        movie.setReleasedDate( request.getReleasedDate() );
+        movie.setTagline( request.getTagline() );
+        movie.setTitle( request.getTitle() );
+        movie.setTrailerURL( request.getTrailerURL() );
     }
 
     @Override
@@ -126,11 +126,25 @@ public class MovieMapperImpl implements MovieMapper {
 
         MovieBannerResponse.MovieBannerResponseBuilder movieBannerResponse = MovieBannerResponse.builder();
 
+        movieBannerResponse.backdropURL( movie.getBackdropURL() );
         movieBannerResponse.id( movie.getId() );
         movieBannerResponse.title( movie.getTitle() );
-        movieBannerResponse.backdropURL( movie.getBackdropURL() );
 
         return movieBannerResponse.build();
+    }
+
+    protected AgeRatingDetailResponse ageRatingToAgeRatingDetailResponse(AgeRating ageRating) {
+        if ( ageRating == null ) {
+            return null;
+        }
+
+        AgeRatingDetailResponse.AgeRatingDetailResponseBuilder ageRatingDetailResponse = AgeRatingDetailResponse.builder();
+
+        ageRatingDetailResponse.code( ageRating.getCode() );
+        ageRatingDetailResponse.description( ageRating.getDescription() );
+        ageRatingDetailResponse.id( ageRating.getId() );
+
+        return ageRatingDetailResponse.build();
     }
 
     protected LanguageResponse languageToLanguageResponse(Language language) {
@@ -144,19 +158,5 @@ public class MovieMapperImpl implements MovieMapper {
         languageResponse.name( language.getName() );
 
         return languageResponse.build();
-    }
-
-    protected AgeRatingDetailResponse ageRatingToAgeRatingDetailResponse(AgeRating ageRating) {
-        if ( ageRating == null ) {
-            return null;
-        }
-
-        AgeRatingDetailResponse.AgeRatingDetailResponseBuilder ageRatingDetailResponse = AgeRatingDetailResponse.builder();
-
-        ageRatingDetailResponse.id( ageRating.getId() );
-        ageRatingDetailResponse.code( ageRating.getCode() );
-        ageRatingDetailResponse.description( ageRating.getDescription() );
-
-        return ageRatingDetailResponse.build();
     }
 }

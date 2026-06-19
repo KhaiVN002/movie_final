@@ -10,8 +10,8 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2026-06-18T15:35:59+0700",
-    comments = "version: 1.6.3, compiler: javac, environment: Java 21.0.10 (Eclipse Adoptium)"
+    date = "2026-06-19T10:11:09+0700",
+    comments = "version: 1.6.3, compiler: Eclipse JDT (IDE) 3.46.0.v20260407-0427, environment: Java 21.0.10 (Eclipse Adoptium)"
 )
 @Component
 public class RoomMapperImpl implements RoomMapper {
@@ -29,13 +29,13 @@ public class RoomMapperImpl implements RoomMapper {
 
         RoomDetailResponse.RoomDetailResponseBuilder roomDetailResponse = RoomDetailResponse.builder();
 
+        roomDetailResponse.branch( branchMapper.toBranchOptionResponse( room.getBranch() ) );
+        roomDetailResponse.columnCount( room.getColumnCount() );
         roomDetailResponse.id( room.getId() );
         roomDetailResponse.name( room.getName() );
         roomDetailResponse.rowCount( room.getRowCount() );
-        roomDetailResponse.columnCount( room.getColumnCount() );
-        roomDetailResponse.branch( branchMapper.toBranchOptionResponse( room.getBranch() ) );
-        roomDetailResponse.type( roomTypeMapper.toRoomTypeSummaryResponse( room.getType() ) );
         roomDetailResponse.status( roomStatusToRoomStatusResponse( room.getStatus() ) );
+        roomDetailResponse.type( roomTypeMapper.toRoomTypeSummaryResponse( room.getType() ) );
 
         return roomDetailResponse.build();
     }

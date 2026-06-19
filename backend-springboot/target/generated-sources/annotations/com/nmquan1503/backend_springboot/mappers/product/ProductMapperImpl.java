@@ -13,8 +13,8 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2026-06-18T15:35:59+0700",
-    comments = "version: 1.6.3, compiler: javac, environment: Java 21.0.10 (Eclipse Adoptium)"
+    date = "2026-06-19T10:11:09+0700",
+    comments = "version: 1.6.3, compiler: Eclipse JDT (IDE) 3.46.0.v20260407-0427, environment: Java 21.0.10 (Eclipse Adoptium)"
 )
 @Component
 public class ProductMapperImpl implements ProductMapper {
@@ -29,8 +29,8 @@ public class ProductMapperImpl implements ProductMapper {
 
         productDetailResponse.id( product.getId() );
         productDetailResponse.name( product.getName() );
-        productDetailResponse.thumbnailURL( product.getThumbnailURL() );
         productDetailResponse.price( product.getPrice() );
+        productDetailResponse.thumbnailURL( product.getThumbnailURL() );
 
         return productDetailResponse.build();
     }
@@ -87,8 +87,8 @@ public class ProductMapperImpl implements ProductMapper {
         Product.ProductBuilder product = Product.builder();
 
         product.name( request.getName() );
-        product.thumbnailURL( request.getThumbnailURL() );
         product.price( request.getPrice() );
+        product.thumbnailURL( request.getThumbnailURL() );
 
         return product.build();
     }
@@ -102,11 +102,11 @@ public class ProductMapperImpl implements ProductMapper {
         if ( request.getName() != null ) {
             product.setName( request.getName() );
         }
-        if ( request.getThumbnailURL() != null ) {
-            product.setThumbnailURL( request.getThumbnailURL() );
-        }
         if ( request.getPrice() != null ) {
             product.setPrice( request.getPrice() );
+        }
+        if ( request.getThumbnailURL() != null ) {
+            product.setThumbnailURL( request.getThumbnailURL() );
         }
     }
 }

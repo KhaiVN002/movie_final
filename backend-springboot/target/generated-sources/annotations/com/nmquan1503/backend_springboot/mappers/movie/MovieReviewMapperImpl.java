@@ -11,8 +11,8 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2026-06-18T15:35:59+0700",
-    comments = "version: 1.6.3, compiler: javac, environment: Java 21.0.10 (Eclipse Adoptium)"
+    date = "2026-06-19T10:11:08+0700",
+    comments = "version: 1.6.3, compiler: Eclipse JDT (IDE) 3.46.0.v20260407-0427, environment: Java 21.0.10 (Eclipse Adoptium)"
 )
 @Component
 public class MovieReviewMapperImpl implements MovieReviewMapper {
@@ -25,11 +25,11 @@ public class MovieReviewMapperImpl implements MovieReviewMapper {
 
         MovieReviewResponse.MovieReviewResponseBuilder movieReviewResponse = MovieReviewResponse.builder();
 
-        movieReviewResponse.id( movieReview.getId() );
-        movieReviewResponse.user( userToUserPreviewResponse( movieReview.getUser() ) );
-        movieReviewResponse.rating( movieReview.getRating() );
         movieReviewResponse.comment( movieReview.getComment() );
         movieReviewResponse.creationTime( movieReview.getCreationTime() );
+        movieReviewResponse.id( movieReview.getId() );
+        movieReviewResponse.rating( movieReview.getRating() );
+        movieReviewResponse.user( userToUserPreviewResponse( movieReview.getUser() ) );
 
         return movieReviewResponse.build();
     }
@@ -42,8 +42,8 @@ public class MovieReviewMapperImpl implements MovieReviewMapper {
 
         MovieReview.MovieReviewBuilder movieReview = MovieReview.builder();
 
-        movieReview.rating( request.getRating() );
         movieReview.comment( request.getComment() );
+        movieReview.rating( request.getRating() );
 
         return movieReview.build();
     }
@@ -54,8 +54,8 @@ public class MovieReviewMapperImpl implements MovieReviewMapper {
             return;
         }
 
-        review.setRating( request.getRating() );
         review.setComment( request.getComment() );
+        review.setRating( request.getRating() );
     }
 
     @Override
@@ -66,12 +66,12 @@ public class MovieReviewMapperImpl implements MovieReviewMapper {
 
         MovieReview.MovieReviewBuilder movieReview = MovieReview.builder();
 
-        movieReview.id( review.getId() );
-        movieReview.user( review.getUser() );
-        movieReview.movie( review.getMovie() );
-        movieReview.rating( review.getRating() );
         movieReview.comment( review.getComment() );
         movieReview.creationTime( review.getCreationTime() );
+        movieReview.id( review.getId() );
+        movieReview.movie( review.getMovie() );
+        movieReview.rating( review.getRating() );
+        movieReview.user( review.getUser() );
 
         return movieReview.build();
     }
@@ -83,9 +83,9 @@ public class MovieReviewMapperImpl implements MovieReviewMapper {
 
         UserPreviewResponse.UserPreviewResponseBuilder userPreviewResponse = UserPreviewResponse.builder();
 
-        userPreviewResponse.id( user.getId() );
-        userPreviewResponse.fullName( user.getFullName() );
         userPreviewResponse.avatarURL( user.getAvatarURL() );
+        userPreviewResponse.fullName( user.getFullName() );
+        userPreviewResponse.id( user.getId() );
 
         return userPreviewResponse.build();
     }
