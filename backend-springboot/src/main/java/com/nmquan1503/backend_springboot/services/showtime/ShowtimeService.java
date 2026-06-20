@@ -32,11 +32,21 @@ public class ShowtimeService {
     MovieService movieService;
     RoomService roomService;
     ShowtimeStatusService showtimeStatusService;
+    com.nmquan1503.backend_springboot.repositories.reservation.ReservationRepository reservationRepository;
 
     ShowtimeMapper showtimeMapper;
 
     public ShowtimeDetailResponse getShowtimeDetail(Long showtimeId) {
         return showtimeMapper.toShowtimeDetailResponse(fetchById(showtimeId));
+    }
+
+    public org.springframework.data.domain.Page<ShowtimeDetailResponse> getAllShowtimes(String search, org.springframework.data.domain.Pageable pageable) {
+        if (search != null && !search.trim().isEmpty()) {
+            return showtimeRepository.findByMovieTitleContainingIgnoreCase(search.trim(), pageable)
+                    .map(showtimeMapper::toShowtimeDetailResponse);
+        }
+        return showtimeRepository.findAll(pageable)
+                .map(showtimeMapper::toShowtimeDetailResponse);
     }
 
     public List<ShowtimeOptionResponse> getShowtimeOptionsByMovieId(Long movieId) {
@@ -93,6 +103,50 @@ public class ShowtimeService {
 
     public List<Showtime> fetchByMovieIdAndStartTimeWithinPeriod(Long movieId, LocalDateTime from, LocalDateTime to) {
         return showtimeRepository.findByMovieIdAndStartTimeGreaterThanEqualAndStartTimeLessThan(movieId, from, to);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @org.springframework.transaction.annotation.Transactional
+    public void deleteShowtime(Long showtimeId) {
+        Showtime showtime = showtimeRepository.findById(showtimeId)
+                .orElseThrow(() -> new GeneralException(ResponseCode.SHOWTIME_NOT_FOUND));
+        Long movieId = showtime.getMovie().getId();
+        List<Showtime> showtimes = showtimeRepository.findByMovieId(movieId);
+        for (Showtime s : showtimes) {
+            if (reservationRepository.existsByShowtimeId(s.getId())) {
+                throw new GeneralException(ResponseCode.SHOWTIME_HAS_BOOKINGS);
+            }
+        }
+        showtimeRepository.deleteAll(showtimes);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @org.springframework.transaction.annotation.Transactional
+    public void deleteShowtimesBulk(List<Long> showtimeIds) {
+        for (Long showtimeId : showtimeIds) {
+            if (!showtimeRepository.existsById(showtimeId)) {
+                throw new GeneralException(ResponseCode.SHOWTIME_NOT_FOUND);
+            }
+            if (reservationRepository.existsByShowtimeId(showtimeId)) {
+                throw new GeneralException(ResponseCode.SHOWTIME_HAS_BOOKINGS);
+            }
+        }
+        showtimeRepository.deleteAllById(showtimeIds);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @org.springframework.transaction.annotation.Transactional
+    public void deleteShowtimesByMovieTitle(String title) {
+        if (title == null || title.trim().isEmpty()) {
+            throw new RuntimeException("Tên phim không được để trống");
+        }
+        List<Showtime> showtimes = showtimeRepository.findByMovieTitleContainingIgnoreCase(title.trim());
+        for (Showtime showtime : showtimes) {
+            if (reservationRepository.existsByShowtimeId(showtime.getId())) {
+                throw new GeneralException(ResponseCode.SHOWTIME_HAS_BOOKINGS);
+            }
+        }
+        showtimeRepository.deleteAll(showtimes);
     }
 
 }

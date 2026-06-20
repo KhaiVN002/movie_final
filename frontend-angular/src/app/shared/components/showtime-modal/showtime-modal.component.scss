@@ -1,0 +1,260 @@
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+}
+
+.modal-container {
+    position: relative;
+    width: 90%;
+    max-width: 1100px;
+    max-height: 90vh;
+    background-color: #faf8f0;
+    border-radius: 6px;
+    padding: 30px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    overflow-y: auto;
+    box-sizing: border-box;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+
+    /* Custom scrollbar for modal container */
+    &::-webkit-scrollbar {
+        width: 8px;
+    }
+    &::-webkit-scrollbar-track {
+        background: #faf8f0;
+        border-radius: 6px;
+    }
+    &::-webkit-scrollbar-thumb {
+        background: #ccc;
+        border-radius: 4px;
+        &:hover {
+            background: #999;
+        }
+    }
+}
+
+.close-btn {
+    position: absolute;
+    right: 20px;
+    top: 15px;
+    font-size: 36px;
+    line-height: 1;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    color: #444;
+    transition: color 0.2s;
+
+    &:hover {
+        color: #ff0000;
+    }
+}
+
+/* Date Tabs */
+.dates-wrapper {
+    width: 100%;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #d4cfb4;
+}
+
+.dates-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: flex-start;
+}
+
+.date-item {
+    width: 48px;
+    height: 56px;
+    border: 1px solid #d4cfb4;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    background-color: #fff;
+    border-radius: 3px;
+    transition: all 0.15s ease;
+    user-select: none;
+
+    &:hover {
+        border-color: #333;
+        background-color: #f7f5ec;
+    }
+
+    &.active {
+        border: 2px solid #333;
+        background-color: #fff;
+        
+        .date-num {
+            color: #000;
+        }
+    }
+}
+
+.date-header {
+    font-size: 9px;
+    color: #777;
+    display: flex;
+    gap: 3px;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.date-num {
+    font-size: 18px;
+    color: #333;
+    font-weight: 700;
+    margin-top: 2px;
+    line-height: 1;
+}
+
+/* Province Filter */
+.provinces-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #d4cfb4;
+    margin-bottom: 20px;
+}
+
+.province-btn {
+    background: transparent;
+    border: 1px solid transparent;
+    font-size: 13px;
+    padding: 6px 12px;
+    cursor: pointer;
+    color: #333;
+    border-radius: 4px;
+    transition: all 0.2s;
+
+    &:hover {
+        background-color: #e5dfcf;
+    }
+
+    &.active {
+        background-color: #222;
+        color: #fff;
+        font-weight: bold;
+    }
+}
+
+/* Format Selector */
+.format-bar {
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #333;
+}
+
+.format-btn {
+    background-color: #222;
+    color: #fff;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 3px;
+    font-weight: bold;
+    font-size: 13px;
+    cursor: default;
+    text-transform: uppercase;
+}
+
+/* Showtime list section */
+.schedule-container {
+    padding: 10px 0;
+}
+
+.loading-text {
+    text-align: center;
+    padding: 30px;
+    font-size: 15px;
+    color: #666;
+    font-style: italic;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: #777;
+    font-size: 15px;
+    border: 1px dashed #d4cfb4;
+    background-color: #fcfbfa;
+    border-radius: 4px;
+}
+
+.branches-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.branch-card {
+    border-bottom: 1px solid #e5dfcf;
+    padding-bottom: 20px;
+
+    &:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+}
+
+.branch-title {
+    font-size: 16px;
+    color: #222;
+    font-weight: 700;
+    margin: 0 0 15px 0;
+}
+
+.room-type-section {
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    &:last-child {
+        margin-bottom: 0;
+    }
+}
+
+.room-type-name {
+    font-size: 13px;
+    color: #555;
+    font-weight: 600;
+}
+
+.time-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.time-btn {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    padding: 8px 18px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    color: #333;
+    min-width: 80px;
+    text-align: center;
+    transition: all 0.15s ease;
+
+    &:hover {
+        background-color: #222;
+        color: #fff;
+        border-color: #222;
+    }
+}

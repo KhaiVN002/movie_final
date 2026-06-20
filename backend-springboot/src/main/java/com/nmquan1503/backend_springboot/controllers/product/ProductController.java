@@ -9,6 +9,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -31,7 +32,17 @@ public class ProductController {
         return ResponseEntity.ok().body(response);
     }
 
+    @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
+    ResponseEntity<ApiResponse<List<ProductDetailResponse>>> getAllProducts() {
+        ApiResponse<List<ProductDetailResponse>> response = ApiResponse.success(
+                productService.getAllProducts()
+        );
+        return ResponseEntity.ok().body(response);
+    }
+
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     ResponseEntity<ApiResponse<Void>> createProduct(
             @RequestBody ProductCreationRequest request
     ) {
@@ -41,6 +52,7 @@ public class ProductController {
     }
 
     @PutMapping("/{productId}")
+    @PreAuthorize("hasRole('ADMIN')")
     ResponseEntity<ApiResponse<Void>> updateProduct(
             @PathVariable Byte productId,
             @RequestBody ProductUpdateRequest request
@@ -51,3 +63,4 @@ public class ProductController {
     }
 
 }
+

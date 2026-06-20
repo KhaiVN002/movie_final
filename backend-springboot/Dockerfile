@@ -9,8 +9,9 @@ RUN mvn clean package -DskipTests
 # Stage 2: Runtime
 FROM eclipse-temurin:21-jre-jammy
 RUN addgroup --system spring && adduser --system --ingroup spring spring
-USER spring:spring
 WORKDIR /app
-COPY --from=build /app/target/*.jar app.jar
+RUN chown spring:spring /app
+USER spring:spring
+COPY --from=build --chown=spring:spring /app/target/*.jar app.jar
 EXPOSE 8080
 ENTRYPOINT ["java","-jar","app.jar"]

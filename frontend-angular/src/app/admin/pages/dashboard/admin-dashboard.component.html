@@ -1,0 +1,204 @@
+<div class="dashboard-container">
+  <div class="dashboard-header">
+    <div class="header-info">
+      <h1>Bảng Điều Khiển Admin</h1>
+      <p class="subtitle">Thống kê hoạt động rạp chiếu, doanh thu bán vé, bắp nước và nhật ký đặt vé thời gian thực.</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-primary" (click)="loadDashboardData()">
+        <i class="fas fa-sync-alt" [class.fa-spin]="isLoading"></i> Làm mới dữ liệu
+      </button>
+    </div>
+  </div>
+
+  <!-- Stats Grid -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon-wrapper movies-icon">
+        <i class="fas fa-film"></i>
+      </div>
+      <div class="stat-content">
+        <span class="stat-title">Tổng Số Phim</span>
+        <h3 class="stat-value">{{ movieCount }}</h3>
+        <span class="stat-change positive"><i class="fas fa-caret-up"></i> +12% tháng này</span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon-wrapper showtimes-icon">
+        <i class="fas fa-clock"></i>
+      </div>
+      <div class="stat-content">
+        <span class="stat-title">Lịch Chiếu Hoạt Động</span>
+        <h3 class="stat-value">{{ showtimeCount }}</h3>
+        <span class="stat-change positive"><i class="fas fa-caret-up"></i> +8% hôm nay</span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon-wrapper products-icon">
+        <i class="fas fa-cookie-bite"></i>
+      </div>
+      <div class="stat-content">
+        <span class="stat-title">Sản Phẩm Bắp Nước</span>
+        <h3 class="stat-value">{{ productCount }}</h3>
+        <span class="stat-change neutral"><i class="fas fa-minus"></i> Ổn định</span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon-wrapper revenue-icon">
+        <i class="fas fa-coins"></i>
+      </div>
+      <div class="stat-content">
+        <span class="stat-title">Doanh Thu Hôm Nay</span>
+        <h3 class="stat-value">{{ revenueToday | number:'1.0-0' }} đ</h3>
+        <span class="stat-change positive"><i class="fas fa-caret-up"></i> +24% so với hôm qua</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Analytics Row (Charts) -->
+  <div class="analytics-row">
+    <!-- Revenue Chart -->
+    <div class="analytics-card revenue-chart-card">
+      <div class="card-header">
+        <h2>Xu Hướng Doanh Thu Tuần</h2>
+        <span class="card-subtitle">Tổng doanh thu bán vé & bắp nước theo ngày</span>
+      </div>
+      <div class="card-body">
+        <div class="chart-container" *ngIf="dailyRevenue.length > 0">
+          <svg viewBox="0 0 500 150" class="svg-chart">
+            <!-- Grid Lines -->
+            <line x1="20" y1="20" x2="480" y2="20" stroke="rgba(255,255,255,0.05)" stroke-width="1" />
+            <line x1="20" y1="65" x2="480" y2="65" stroke="rgba(255,255,255,0.05)" stroke-width="1" />
+            <line x1="20" y1="110" x2="480" y2="110" stroke="rgba(255,255,255,0.05)" stroke-width="1" />
+            <line x1="20" y1="130" x2="480" y2="130" stroke="rgba(255,255,255,0.1)" stroke-width="1" />
+
+            <!-- Smooth Area Fill -->
+            <path *ngIf="revenueChartPoints.length > 0"
+                  [attr.d]="revenueChartPath + ' L ' + revenueChartPoints[revenueChartPoints.length - 1].x + ' 130 L ' + revenueChartPoints[0].x + ' 130 Z'" 
+                  fill="url(#revenueGrad)" />
+
+            <!-- Chart Line -->
+            <path [attr.d]="revenueChartPath" fill="none" stroke="#ef4444" stroke-width="3.5" stroke-linecap="round" />
+
+            <!-- Dots -->
+            <g *ngFor="let pt of revenueChartPoints">
+              <circle [attr.cx]="pt.x" [attr.cy]="pt.y" r="5" class="chart-dot" />
+              <text [attr.x]="pt.x" [attr.y]="pt.y - 10" class="chart-tooltip">{{ pt.value / 1000000 | number:'1.1-1' }}Tr</text>
+              <text [attr.x]="pt.x" y="145" class="chart-label">{{ pt.label }}</text>
+            </g>
+
+            <defs>
+              <linearGradient id="revenueGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#ef4444" stop-opacity="0.3" />
+                <stop offset="100%" stop-color="#ef4444" stop-opacity="0.0" />
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Occupancy Circle -->
+    <div class="analytics-card occupancy-card">
+      <div class="card-header">
+        <h2>Tỷ Lệ Lấp Đầy Ghế</h2>
+        <span class="card-subtitle">Hiệu suất ghế trung bình trong ngày</span>
+      </div>
+      <div class="card-body centered-flex">
+        <div class="progress-ring-wrapper">
+          <svg class="progress-ring" width="120" height="120">
+            <circle class="progress-ring-bg" stroke="rgba(255,255,255,0.05)" stroke-width="10" fill="transparent" r="40" cx="60" cy="60" />
+            <circle class="progress-ring-fill" stroke="#ef4444" stroke-width="10" fill="transparent" r="40" cx="60" cy="60" 
+                    [attr.stroke-dasharray]="circumference" 
+                    [attr.stroke-dashoffset]="strokeDashoffset" />
+          </svg>
+          <div class="progress-ring-text">
+            <span class="percentage-val">{{ seatOccupancyRate }}%</span>
+            <span class="label">Đã đặt</span>
+          </div>
+        </div>
+        <div class="occupancy-stats">
+          <div class="stat-row">
+            <span class="dot standard"></span> Ghế Thường: <strong>81%</strong>
+          </div>
+          <div class="stat-row">
+            <span class="dot vip"></span> Ghế VIP / Đôi: <strong>65%</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Grid: Movie Ticket Stats & Recent Buyers -->
+  <div class="details-grid">
+    <!-- Movie Ticket Stats (Vé bán ra & Vé còn lại) -->
+    <div class="details-card top-movies-card">
+      <div class="card-header">
+        <h2>Vé Bán Ra & Vé Còn Lại Theo Phim</h2>
+        <span class="card-subtitle">Cập nhật thống kê chi tiết mỗi khi có người mua vé</span>
+      </div>
+      <div class="card-body">
+        <div class="top-movies-list">
+          <div *ngFor="let movie of movieStats" class="movie-performance-item">
+            <div class="movie-meta">
+              <span class="movie-title-span">{{ movie.title }}</span>
+              <span class="movie-sales-span">
+                Đã bán: <strong>{{ movie.ticketsSold }}</strong> &bull; Còn lại: <strong>{{ movie.ticketsLeft }}</strong>
+              </span>
+            </div>
+            <div class="progress-bar-bg">
+              <div class="progress-bar-fill" [style.width.%]="movie.percentage" [style.background-color]="movie.color"></div>
+            </div>
+            <div class="movie-revenue">
+              <span>Doanh thu: {{ movie.revenue | number:'1.0-0' }} đ</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Ticket Buyers (Người mua vé) -->
+    <div class="details-card recent-bookings-card">
+      <div class="card-header">
+        <h2>Giao Dịch Người Mua Vé Gần Đây</h2>
+        <span class="card-subtitle">Danh sách tài khoản khách hàng đặt vé thời gian thực</span>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="dashboard-table">
+            <thead>
+              <tr>
+                <th>Mã Đơn</th>
+                <th>Tài Khoản Mua</th>
+                <th>Ghế</th>
+                <th>Số Tiền</th>
+                <th>Trạng Thái</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let buyer of recentBuyers">
+                <td><code>{{ buyer.id }}</code></td>
+                <td>
+                  <div class="customer-info-cell">
+                    <span class="email">{{ buyer.email }}</span>
+                    <span class="name">{{ buyer.movieTitle }}</span>
+                  </div>
+                </td>
+                <td><code>{{ buyer.seats }}</code></td>
+                <td class="amount">{{ buyer.amount | number:'1.0-0' }} đ</td>
+                <td>
+                  <span class="status-badge" [class.paid]="buyer.status === 'SUCCESS' || buyer.status === 'PAID'" [class.expired]="buyer.status === 'EXPIRED' || buyer.status === 'FAILED'">
+                    {{ buyer.status }}
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

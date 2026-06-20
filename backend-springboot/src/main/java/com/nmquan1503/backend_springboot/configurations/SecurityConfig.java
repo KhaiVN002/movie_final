@@ -28,12 +28,14 @@ public class SecurityConfig {
             "/movies/**",
             "/payment-transactions/callback",
             "/movie-reviews/**",
-            "/showtimes/**",
+            "/showtimes/movie/**",
+            "/showtimes/detail/**",
             "/branches/**",
             "/room-types/**",
             "/movie-cast/**",
             "/movie-crew/**",
-            "/movie-images/**"
+            "/movie-images/**",
+            "/uploads/**"
     };
 
     static String[] PUBLIC_POST_ENDPOINTS = {

@@ -1,0 +1,72 @@
+<div class="modal-overlay" *ngIf="isOpen" (click)="close()">
+    <div class="modal-container" (click)="$event.stopPropagation()">
+        <!-- Close Button -->
+        <button class="close-btn" (click)="close()">&times;</button>
+
+        <!-- Date Tabs -->
+        <div class="dates-wrapper">
+            <div class="dates-container">
+                <div 
+                    *ngFor="let date of dates" 
+                    class="date-item"
+                    [class.active]="currentDate === date.dateString"
+                    (click)="changeDate(date.dateString)"
+                >
+                    <div class="date-header">
+                        <span>{{ date.month }}</span>
+                        <span>{{ date.dayName }}</span>
+                    </div>
+                    <div class="date-num">{{ date.dayNum }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Province Filter -->
+        <div class="provinces-container" *ngIf="provinces.length > 0">
+            <button 
+                *ngFor="let province of provinces" 
+                class="province-btn"
+                [class.active]="currentProvinceId === province.id"
+                (click)="changeProvince(province.id)"
+            >
+                {{ province.name }}
+            </button>
+        </div>
+
+        <!-- Format Selector -->
+        <div class="format-bar">
+            <button class="format-btn">2D Phụ Đề Anh</button>
+        </div>
+
+        <!-- Showtime List -->
+        <div class="schedule-container">
+            <div *ngIf="isLoading" class="loading-text">
+                Đang tải lịch chiếu...
+            </div>
+            
+            <div *ngIf="!isLoading && filteredBranches.length === 0" class="empty-state">
+                Không tìm thấy lịch chiếu nào phù hợp.
+            </div>
+
+            <div *ngIf="!isLoading && filteredBranches.length > 0" class="branches-list">
+                <div *ngFor="let bg of filteredBranches" class="branch-card">
+                    <h3 class="branch-title">{{ bg.branch.name }}</h3>
+                    
+                    <div *ngFor="let rt of bg.roomTypes" class="room-type-section">
+                        <span class="room-type-name">{{ rt.roomType.name }}</span>
+                        
+                        <div class="time-grid">
+                            <button 
+                                *ngFor="let showtime of rt.showtimes" 
+                                class="time-btn"
+                                (click)="selectShowtime(showtime.id)"
+                            >
+                                {{ dayjs(showtime.startTime).format("HH:mm") }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

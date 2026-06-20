@@ -79,12 +79,11 @@ export class RegisterPageComponent implements OnInit {
         private genderService: GenderService,
         private wardService: WardService,
         private userService: UserService
-    ) { console.log(2) }
+    ) { }
 
     ngOnInit(): void {
         this.loadGenders();
         this.loadLocation();
-        console.log(1)
     }
 
     get listProvince(): ProvinceDetailResponse[] {
@@ -168,7 +167,7 @@ export class RegisterPageComponent implements OnInit {
     name_regexp = /^[a-zA-ZÀ-ỹ\s]+$/;
     phone_regexp = /^(\+84|0)\d{9}$/;
     mail_regexp = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    pass_regexp = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#$%^&\-+=()!?"]).{8,20}$/;
+    pass_regexp = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#$%^&\-+=()!? "]).{8,32}$/;
     register(): void {
         if (!this.fullName.trim()) {
             this.notificationId = 1;
@@ -234,13 +233,14 @@ export class RegisterPageComponent implements OnInit {
         };
         this.userService.createUser(request).subscribe({
             next: (response) => {
-                if (response.success && response.data) {
+                if (response.success) {
                     this.success = true;
                 }
                 else {
                     console.log(`api error: ${response.message}`);
                 }
             },
+
             error: (err) => {
                 console.log(`api error: ${err.error.message}`);
             }

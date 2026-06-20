@@ -13,7 +13,9 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/users")
@@ -69,6 +71,16 @@ public class UserController {
         ApiResponse<Page<UserPreviewResponse>> response = ApiResponse.success(
                 userService.getUserPreviews(pageable)
         );
+        return ResponseEntity.ok().body(response);
+    }
+
+    @PostMapping("/{userId}/avatar")
+    @PreAuthorize("#userId == authentication.principal")
+    public ResponseEntity<ApiResponse<String>> uploadAvatar(
+            @PathVariable Long userId,
+            @RequestParam("file") MultipartFile file
+    ) {
+        ApiResponse<String> response = ApiResponse.success(userService.uploadAvatar(userId, file));
         return ResponseEntity.ok().body(response);
     }
 

@@ -4,7 +4,6 @@ import { PaymentMethodDetailResponse } from "../../../core/models/responses/paym
 import { ReservationDetailResponse } from "../../../core/models/responses/reservation/reservation-detail-response.model";
 import { PaymentTransactionCreationRequest } from "../../../core/models/requests/payment/payment-transaction-creation-request.model";
 import { PaymentTransactionService } from "../../../core/services/payment/payment-transaction.service";
-import { response } from "express";
 import { WindowService } from "../../../core/services/platform-browser/window.service";
 
 @Component({

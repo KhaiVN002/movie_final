@@ -200,5 +200,25 @@ public class ReservationService {
         return response;
     }
 
+    public List<ReservationDetailResponse> getMyReservations() {
+        Long userId = authenticationService.getCurrentUserId();
+        List<Reservation> reservations = reservationRepository.findByUserIdOrderByStartTimeDesc(userId);
+        List<ReservationDetailResponse> responses = new ArrayList<>();
+        for (Reservation reservation : reservations) {
+            // Check expiry for pending reservations
+            if (reservation.getEndTime().isBefore(LocalDateTime.now()) && reservation.getStatus().getName().equals("PENDING")) {
+                reservation.setStatus(reservationStatusService.fetchByName("EXPIRED"));
+                reservationRepository.save(reservation);
+            }
+            ReservationDetailResponse resDto = reservationMapper.toReservationDetailResponse(reservation);
+            List<Seat> seats = seatService.fetchSeatsByReservationId(reservation.getId());
+            resDto.setSeats(seatMapper.toListSeatDetailResponse(seats));
+            List<ReservationProduct> reservationProducts = reservationProductService.fetchByReservationId(reservation.getId());
+            resDto.setItems(reservationProductMapper.toListProductReservationItemResponse(reservationProducts));
+            resDto.setTicketPrice(ticketPriceService.getTotalTicketPrice(reservation));
+            responses.add(resDto);
+        }
+        return responses;
+    }
 
 }

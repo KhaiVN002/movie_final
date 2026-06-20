@@ -2,3 +2,77 @@
 <search-bar></search-bar>
 <home-promo-slider></home-promo-slider>
 <movie-slideshow></movie-slideshow>
+
+<!-- Search & Filter Movies Section -->
+<div class="storefront-search-section">
+  <div class="section-container">
+    <div class="section-header">
+      <h2 class="section-title">TÌM KIẾM & PHÂN LOẠI PHIM</h2>
+      <p class="section-subtitle">Tìm kiếm phim yêu thích theo tên hoặc lọc nhanh theo các thể loại phim đang được trình chiếu.</p>
+    </div>
+
+    <!-- Search input and category filters -->
+    <div class="search-filter-controls">
+      <div class="search-box-wrapper">
+        <i class="fas fa-search search-icon"></i>
+        <input type="text" 
+               [(ngModel)]="searchQuery" 
+               (ngModelChange)="onSearchChange()" 
+               placeholder="Nhập tên phim bạn muốn tìm kiếm..." 
+               class="search-input">
+      </div>
+
+      <div class="category-tabs">
+        <button class="category-tab-btn" 
+                [class.active]="selectedCategoryId === null" 
+                (click)="selectCategory(null)">
+          Tất cả thể loại
+        </button>
+        <button class="category-tab-btn" 
+                *ngFor="let cat of categories" 
+                [class.active]="selectedCategoryId === cat.id" 
+                (click)="selectCategory(cat.id)">
+          {{ cat.name }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Loading spinner -->
+    <div class="loading-state" *ngIf="isLoading">
+      <div class="spinner"></div>
+      <p>Đang tìm kiếm phim...</p>
+    </div>
+
+    <!-- Empty state -->
+    <div class="empty-state" *ngIf="!isLoading && filteredMovies.length === 0">
+      <i class="fas fa-video-slash empty-icon"></i>
+      <h3>Không tìm thấy bộ phim nào</h3>
+      <p>Vui lòng thử lại với từ khóa khác hoặc thay đổi lựa chọn thể loại phim.</p>
+    </div>
+
+    <!-- Movies Grid -->
+    <div class="movies-search-grid" *ngIf="!isLoading && filteredMovies.length > 0">
+      <div class="movie-search-card" *ngFor="let movie of filteredMovies" (click)="navigateToDetail(movie.id)">
+        <div class="movie-poster-wrapper">
+          <img [src]="movie.posterURL" [alt]="movie.title" onerror="this.src='https://placehold.co/200x300/032055/ffffff?text=No+Poster'"/>
+          <div class="movie-card-overlay">
+            <span class="view-detail-btn">XEM CHI TIẾT</span>
+          </div>
+        </div>
+        <div class="movie-card-details">
+          <h4 class="movie-card-title">{{ movie.title }}</h4>
+          <div class="movie-card-info">
+            <div class="info-row">
+              <span class="label">Thể loại:</span>
+              <span class="value">{{ getCategoriesString(movie) }}</span>
+            </div>
+            <div class="info-row">
+              <span class="label">Thời lượng:</span>
+              <span class="value">{{ movie.duration }} phút</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,103 @@
+<div class="config-container">
+  <div class="page-header">
+    <div class="header-info">
+      <h1>Cài Đặt & Cấu Hình</h1>
+      <p class="subtitle">Cập nhật quy tắc giá vé cơ bản, điều chỉnh tên thương hiệu, nội dung thông báo và bật/tắt chế độ bảo trì.</p>
+    </div>
+  </div>
+
+  <!-- Messages -->
+  <div class="alert alert-error" *ngIf="errorMessage">
+    <i class="fas fa-exclamation-circle"></i> {{ errorMessage }}
+  </div>
+  <div class="alert alert-success" *ngIf="successMessage">
+    <i class="fas fa-check-circle"></i> {{ successMessage }}
+  </div>
+
+  <div class="config-grid">
+    <!-- Base Ticket Pricing Card -->
+    <div class="card pricing-card">
+      <div class="card-header">
+        <h2><i class="fas fa-ticket-alt header-icon"></i> Quy Tắc Giá Vé Cơ Bản</h2>
+        <p>Định nghĩa giá vé cơ bản theo các ngày trong tuần và khung giờ chiếu.</p>
+      </div>
+      
+      <div class="loading-wrapper" *ngIf="isLoading && !ticketPrices.length">
+        <div class="spinner"></div>
+        <p>Đang tải bảng giá...</p>
+      </div>
+
+      <div class="pricing-list" *ngIf="ticketPrices.length">
+        <div class="pricing-item" *ngFor="let price of ticketPrices" [class.editing]="editingPriceId === price.id">
+          <div class="pricing-info">
+            <span class="day-badge">{{ getDayName(price.dayOfWeek) }}</span>
+            <span class="time-range">
+              <i class="far fa-clock"></i> {{ price.timeRangeStart.substring(0, 5) }} - {{ price.timeRangeEnd.substring(0, 5) }}
+            </span>
+          </div>
+
+          <!-- Edit mode form -->
+          <form [formGroup]="priceForm" (ngSubmit)="savePrice(price.id)" *ngIf="editingPriceId === price.id" class="edit-price-form">
+            <input type="number" formControlName="price" class="price-input"/>
+            <div class="edit-actions">
+              <button type="submit" class="btn btn-save" [disabled]="priceForm.invalid"><i class="fas fa-check"></i></button>
+              <button type="button" class="btn btn-cancel" (click)="cancelEditPrice()"><i class="fas fa-times"></i></button>
+            </div>
+          </form>
+
+          <!-- Display mode -->
+          <div class="pricing-val-display" *ngIf="editingPriceId !== price.id">
+            <span class="price-val">{{ price.price | number:'1.0-0' }} đ</span>
+            <button class="btn-edit" (click)="startEditPrice(price)" title="Sửa giá vé">
+              <i class="fas fa-pencil-alt"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- General Website Settings Card -->
+    <div class="card settings-card">
+      <div class="card-header">
+        <h2><i class="fas fa-globe header-icon"></i> Cấu hình Website</h2>
+        <p>Cấu hình banner động, nội dung thông báo và các cài đặt chung.</p>
+      </div>
+
+      <form [formGroup]="websiteForm" (ngSubmit)="saveWebsiteConfig()">
+        <div class="card-body">
+          <div class="form-group">
+            <label for="siteName">Tiêu đề trang (Site Title)</label>
+            <input type="text" id="siteName" formControlName="siteName"/>
+          </div>
+
+          <div class="form-group toggle-group">
+            <div class="toggle-text">
+              <label>Chế độ Bảo trì (Maintenance Mode)</label>
+              <p>Chuyển hướng toàn bộ lượt truy cập công khai sang trang thông báo bảo trì.</p>
+            </div>
+            <label class="switch">
+              <input type="checkbox" formControlName="maintenanceMode"/>
+              <span class="slider round"></span>
+            </label>
+          </div>
+
+          <div class="form-group">
+            <label for="announce">Nội dung thông báo (Announcement)</label>
+            <textarea id="announce" formControlName="announcement" rows="3"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="bannerUrl">Đường dẫn ảnh Banner Trang chủ (Hero Banner URL)</label>
+            <input type="text" id="bannerUrl" formControlName="bannerUrl"/>
+          </div>
+        </div>
+
+        <div class="card-footer">
+          <button type="submit" class="btn btn-primary" [disabled]="websiteForm.invalid || isLoading">
+            Lưu cấu hình trang
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

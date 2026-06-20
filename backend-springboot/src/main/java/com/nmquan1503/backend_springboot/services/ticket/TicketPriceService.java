@@ -34,6 +34,15 @@ public class TicketPriceService {
         return ticketPriceMapper.toListTicketPriceResponse(ticketPriceRepository.findAll());
     }
 
+    @org.springframework.transaction.annotation.Transactional
+    @org.springframework.security.access.prepost.PreAuthorize("hasRole('ADMIN')")
+    public void updateTicketPrice(Integer id, double price) {
+        TicketPrice ticketPrice = ticketPriceRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Ticket price not found"));
+        ticketPrice.setPrice(price);
+        ticketPriceRepository.save(ticketPrice);
+    }
+
     public double getTicketPrice(RoomType roomType, SeatType seatType) {
         double currentBasePrice = ticketPriceRepository.findCurrentTicketPrice();
         return currentBasePrice + roomType.getExtraFee() + seatType.getExtraFee();

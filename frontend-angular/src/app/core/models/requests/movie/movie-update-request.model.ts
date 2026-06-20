@@ -3,7 +3,7 @@ import { Dayjs } from "dayjs";
 interface MovieUpdateRequest {
     title: string;
     posterURL: string;
-    bannerURL: string;
+    backdropURL: string;
     trailerURL: string;
     overview: string;
     releasedDate: string | Dayjs;
@@ -13,7 +13,9 @@ interface MovieUpdateRequest {
     ageRatingId: number;
     actorIds: number[];
     directorIds: number[];
-    categoryIds: number[];
+    addCategoryIds?: number[];
+    deleteCategoryIds?: number[];
+    backdropURLs?: string[];
 }
 
 export type { MovieUpdateRequest };

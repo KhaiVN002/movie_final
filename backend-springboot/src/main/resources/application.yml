@@ -4,6 +4,10 @@ server:
         context-path: ${SERVER_SERVLET_CONTEXT_PATH}
 
 spring:
+    servlet:
+        multipart:
+            max-file-size: 50MB
+            max-request-size: 100MB
     profiles:
         active: dev
     jackson:
@@ -29,9 +33,6 @@ spring:
         password: ${REDIS_PASSWORD}
         database: ${REDIS_DATABASE}
         timeout: 2000
-    web:
-        resources:
-            static-locations: file:uploads/
     devtools:
         restart:
             enabled: true

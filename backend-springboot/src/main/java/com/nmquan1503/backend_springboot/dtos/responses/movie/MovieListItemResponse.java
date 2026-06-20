@@ -22,5 +22,6 @@ public class MovieListItemResponse {
     Long ratingCount;
     List<CategoryResponse> categories;
     AgeRatingLabelResponse ageRating;
+    Boolean hasBookings;
 
 }

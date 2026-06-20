@@ -10,19 +10,42 @@
             >
                 <app-slide-item
                     *ngFor="let movie of movies"
-                    [routerLink]="['/movies/detail', movie.id]"
+                    (buyClick)="openShowtimeModal(movie.id)"
+                    (detailClick)="navigateToDetail(movie.id)"
                 >
                     <div class="movie-card">
-                        <div class="poster" >
-                            <img [src]="movie.posterURL" >
+                        <div class="poster">
+                            <img [src]="movie.posterURL">
+                            
+                            <!-- Hover Overlay -->
+                            <div class="hover-overlay">
+                                <!-- Center Play Button -->
+                                <div class="play-btn-wrapper">
+                                    <div class="play-btn">
+                                        <i class="fas fa-play"></i>
+                                        <span class="play-text">PLAY</span>
+                                    </div>
+                                </div>
+                                
+                                <!-- Bottom Details & Buy Tickets -->
+                                <div class="bottom-overlay">
+                                    <div class="hover-title">{{ movie.title }}</div>
+                                    <div class="action-buttons">
+                                        <div class="action-btn detail-btn">XEM CHI TIẾT</div>
+                                        <div class="action-btn buy-btn">
+                                            <i class="fas fa-ticket-alt"></i>MUA VÉ
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         <div class="age-rating">
                             <img [src]="getLinkBackgroundAgeRating(movie)">
                         </div>
-                        <div class="movie-title">{{ movie.title }}</div>
                     </div>
                 </app-slide-item>
             </app-slideshow>
         </div>
     </div>
+    <app-showtime-modal #showtimeModal></app-showtime-modal>
 </div>

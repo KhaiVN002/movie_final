@@ -32,13 +32,14 @@
                 preventClickOnDrag 
             ></a>
 
-            <a 
+            <div 
                 *ngIf="!slide.routerLink && !slide.href" 
                 class="slide" 
                 [innerHTML]="slide.elementRef.nativeElement.innerHTML" 
                 [style.width]="slideWidthPercent + '%'" 
                 preventClickOnDrag 
-            ></a>
+                (click)="onSlideClick($event, slide)"
+            ></div>
         </ng-container>
     </div>
     <div 

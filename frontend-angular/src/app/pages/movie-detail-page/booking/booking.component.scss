@@ -48,6 +48,9 @@
     text-decoration: none;
     background: linear-gradient(169deg, #5560ff 17%, #aa52a1 63%, #ff4343 100%);
     transition: all ease 0.2s;
+    border: none;
+    cursor: pointer;
+    outline: none;
 
     &:hover {
         box-shadow: 0 4px 10px rgba(255, 255, 255, 0.5);

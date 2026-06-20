@@ -1,0 +1,141 @@
+<div class="products-container">
+  <div class="page-header">
+    <div class="header-info">
+      <h1>Sản Phẩm Đồ Ăn & Nước Uống (F&B)</h1>
+      <p class="subtitle">Tạo và quản lý đồ ăn bắp nước rạp phim, combo bỏng nước và gán chúng vào từng chi nhánh rạp.</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-secondary" (click)="openAssignForm()">
+        <i class="fas fa-link"></i> Bán tại chi nhánh
+      </button>
+      <button class="btn btn-primary" (click)="openAddProduct()">
+        <i class="fas fa-plus"></i> Thêm sản phẩm
+      </button>
+    </div>
+  </div>
+
+  <!-- Status Messages -->
+  <div class="alert alert-error" *ngIf="errorMessage">
+    <i class="fas fa-exclamation-circle"></i> {{ errorMessage }}
+  </div>
+  <div class="alert alert-success" *ngIf="successMessage">
+    <i class="fas fa-check-circle"></i> {{ successMessage }}
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-wrapper" *ngIf="isLoading && !products.length">
+    <div class="spinner"></div>
+    <p>Đang tải danh sách sản phẩm...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="!isLoading && !products.length">
+    <i class="fas fa-box-open empty-icon"></i>
+    <h3>Không tìm thấy sản phẩm nào</h3>
+    <p>Hãy tạo sản phẩm đầu tiên của bạn để bắt đầu.</p>
+    <button class="btn btn-primary" (click)="openAddProduct()">Thêm sản phẩm</button>
+  </div>
+
+  <!-- Products Grid -->
+  <div class="products-grid" *ngIf="products.length">
+    <div class="product-card" *ngFor="let product of products">
+      <div class="product-img">
+        <img [src]="product.thumbnailURL" [alt]="product.name" onerror="this.src='https://placehold.co/150x150/1e293b/ffffff?text=F%26B'"/>
+      </div>
+      <div class="product-info">
+        <h3 class="product-name">{{ product.name }}</h3>
+        <p class="product-price">{{ product.price | number:'1.0-0' }} đ</p>
+      </div>
+      <div class="product-actions">
+        <button class="btn-icon btn-edit" (click)="openEditProduct(product)" title="Sửa sản phẩm">
+          <i class="fas fa-edit"></i>
+        </button>
+        <button class="btn-icon btn-assign" (click)="openAssignForm(product)" title="Gán bán tại chi nhánh">
+          <i class="fas fa-map-marker-alt"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Product Modal (Add / Edit) -->
+  <div class="modal-backdrop" *ngIf="showProductForm">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h2>{{ isEditingProduct ? 'Cập Nhật Sản Phẩm' : 'Thêm Sản Phẩm Mới' }}</h2>
+        <button class="close-btn" (click)="closeProductForm()">&times;</button>
+      </div>
+      <form [formGroup]="productForm" (ngSubmit)="saveProduct()">
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="name">Tên sản phẩm</label>
+            <input type="text" id="name" formControlName="name" placeholder="Ví dụ: Bắp rang bơ vị Phô mai cỡ lớn"/>
+            <div class="error-feedback" *ngIf="productForm.get('name')?.touched && productForm.get('name')?.invalid">
+              Tên sản phẩm bắt buộc phải nhập và có tối thiểu 3 ký tự.
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="price">Giá bán (đ)</label>
+            <input type="number" id="price" formControlName="price" placeholder="Ví dụ: 65000"/>
+            <div class="error-feedback" *ngIf="productForm.get('price')?.touched && productForm.get('price')?.invalid">
+              Giá bán bắt buộc phải nhập và không được là số âm.
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="thumbnailURL">Đường dẫn ảnh sản phẩm (Thumbnail URL)</label>
+            <input type="text" id="thumbnailURL" formControlName="thumbnailURL" placeholder="http://..."/>
+            <div class="error-feedback" *ngIf="productForm.get('thumbnailURL')?.touched && productForm.get('thumbnailURL')?.invalid">
+              Đường dẫn ảnh sản phẩm bắt buộc phải nhập.
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeProductForm()">Hủy bỏ</button>
+          <button type="submit" class="btn btn-primary" [disabled]="productForm.invalid || isLoading">
+            {{ isLoading ? 'Đang lưu...' : 'Lưu sản phẩm' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Assign to Branch Modal -->
+  <div class="modal-backdrop" *ngIf="showAssignForm">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h2>Bán Sản Phẩm Tại Chi Nhánh</h2>
+        <button class="close-btn" (click)="closeAssignForm()">&times;</button>
+      </div>
+      <form [formGroup]="assignForm" (ngSubmit)="assignProduct()">
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="assignProductId">Sản phẩm</label>
+            <select id="assignProductId" formControlName="productId">
+              <option value="" disabled selected>Chọn sản phẩm</option>
+              <option *ngFor="let p of products" [value]="p.id">{{ p.name }}</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="assignBranchId">Chi nhánh rạp</label>
+            <select id="assignBranchId" formControlName="branchId">
+              <option value="" disabled selected>Chọn chi nhánh</option>
+              <option *ngFor="let b of branches" [value]="b.id">{{ b.name }}</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="assignStatusId">Trạng thái bán</label>
+            <select id="assignStatusId" formControlName="productStatusId">
+              <option [value]="1">ĐANG BÁN (Hoạt động)</option>
+              <option [value]="2">NGỪNG BÁN (Tạm dừng)</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeAssignForm()">Hủy bỏ</button>
+          <button type="submit" class="btn btn-primary" [disabled]="assignForm.invalid || isLoading">
+            {{ isLoading ? 'Đang liên kết...' : 'Gán bán sản phẩm' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

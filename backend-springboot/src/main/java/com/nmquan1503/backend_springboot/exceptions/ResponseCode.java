@@ -101,6 +101,7 @@ public enum ResponseCode {
     AUTHENTICATED (8001, "Authenticated."),
     UNAUTHENTICATED (8002, "Unauthenticated."),
     UNAUTHORIZED (8003, "You don't have permission."),
+    SHOWTIME_HAS_BOOKINGS(9987, "Lịch chiếu này đã có khách đặt vé, không thể xóa."),
 
     PAYMENT_TRANSACTION_PAID(9988, "Payment transaction was paid."),
     SCHEDULE_CONFLICT(9989, "Showtime conflicts with an existing schedule."),

@@ -18,6 +18,7 @@ public class MovieUpdateRequest {
     String title;
     String posterURL;
     String backdropURL;
+    List<String> backdropURLs;
     String trailerURL;
     String tagline;
     String overview;

@@ -1,0 +1,138 @@
+<div class="cinemas-container">
+  <div class="page-header">
+    <div class="header-info">
+      <h1>Chi Nhánh & Phòng Chiếu</h1>
+      <p class="subtitle">Quản lý chi nhánh rạp, phòng chiếu và xem trước sơ đồ bố trí ghế ngồi.</p>
+    </div>
+  </div>
+
+  <div class="cinemas-layout">
+    <!-- Left Column: Branches list -->
+    <aside class="branches-panel">
+      <div class="panel-header">
+        <h2>Chi nhánh rạp</h2>
+      </div>
+      <div class="panel-body">
+        <div *ngIf="isLoadingBranches" class="loading-state">
+          <i class="fas fa-spinner fa-spin"></i> Đang tải chi nhánh...
+        </div>
+        <div *ngIf="!isLoadingBranches && branches.length === 0" class="empty-state">
+          Không tìm thấy chi nhánh nào.
+        </div>
+        <div class="branch-list" *ngIf="!isLoadingBranches && branches.length > 0">
+          <div *ngFor="let branch of branches" 
+               class="branch-item" 
+               [class.active]="selectedBranchId === branch.id"
+               (click)="selectBranch(branch.id)">
+            <div class="branch-meta">
+              <span class="branch-name">{{ branch.name }}</span>
+              <span class="branch-address"><i class="fas fa-map-marker-alt"></i> {{ branch.address }}</span>
+            </div>
+            <div class="branch-details">
+              <span><i class="fas fa-phone-alt"></i> {{ branch.hotline }}</span>
+              <span><i class="fas fa-clock"></i> {{ branch.hours }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Right Panel: Rooms list and Seat map preview -->
+    <main class="details-panel">
+      <div class="rooms-section">
+        <div class="section-header">
+          <h3>Danh sách phòng chiếu</h3>
+        </div>
+        
+        <div *ngIf="isLoadingRooms" class="loading-state">
+          <i class="fas fa-spinner fa-spin"></i> Đang tải danh sách phòng...
+        </div>
+        
+        <div *ngIf="!isLoadingRooms && rooms.length === 0" class="empty-state">
+          Chọn một chi nhánh hoặc không có phòng chiếu nào.
+        </div>
+
+        <div class="rooms-grid" *ngIf="!isLoadingRooms && rooms.length > 0">
+          <div *ngFor="let room of rooms" 
+               class="room-card" 
+               [class.active]="selectedRoom?.id === room.id"
+               (click)="selectRoom(room)">
+            <div class="room-icon">
+              <i class="fas fa-door-open"></i>
+            </div>
+            <div class="room-info">
+              <span class="room-name">{{ room.name }}</span>
+              <span class="room-spec">
+                {{ room.type?.name || 'TIÊU CHUẨN' }} &bull; {{ room.rowCount * room.columnCount }} Ghế
+              </span>
+            </div>
+            <div class="room-badge" [class.badge-active]="room.status?.name === 'ACTIVE'">
+              {{ room.status?.name === 'ACTIVE' ? 'Hoạt động' : 'Tạm dừng' }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Seat Map Preview Section -->
+      <div class="seatmap-section" *ngIf="selectedRoom">
+        <div class="section-header">
+          <h3>Sơ đồ ghế ngồi - {{ selectedRoom.name }}</h3>
+          <span class="grid-dimensions">({{ selectedRoom.rowCount }} Hàng &times; {{ selectedRoom.columnCount }} Cột)</span>
+        </div>
+
+        <div class="seatmap-wrapper">
+          <!-- Screen Indicator -->
+          <div class="screen-indicator">
+            <div class="screen-curve"></div>
+            <span class="screen-label">MÀN HÌNH CHIEÚ</span>
+          </div>
+
+          <!-- Seat Grid -->
+          <div class="seat-grid-scroll">
+            <div class="seat-grid" [style.grid-template-columns]="'auto repeat(' + selectedRoom.columnCount + ', minmax(28px, 1fr))'">
+              <!-- Empty top-left corner -->
+              <div></div>
+              
+              <!-- Column headers -->
+              <div *ngFor="let col of getColsArray(selectedRoom.columnCount)" class="grid-header-col">
+                {{ col }}
+              </div>
+
+              <!-- Rows of seats -->
+              <ng-container *ngFor="let r of getRowsArray(selectedRoom.rowCount); let rIndex = index">
+                <!-- Row label (left) -->
+                <div class="grid-header-row">{{ rowLetters[rIndex] }}</div>
+
+                <!-- Seats -->
+                <div *ngFor="let c of getColsArray(selectedRoom.columnCount); let cIndex = index" 
+                     class="seat-block" 
+                     [class.seat-standard]="getSeatType(rIndex, selectedRoom.rowCount) === 'standard'"
+                     [class.seat-vip]="getSeatType(rIndex, selectedRoom.rowCount) === 'vip'"
+                     [class.seat-couple]="getSeatType(rIndex, selectedRoom.rowCount) === 'couple'"
+                     [attr.title]="rowLetters[rIndex] + c + ' (' + (getSeatType(rIndex, selectedRoom.rowCount) | uppercase) + ')'">
+                  <i class="fas fa-chair"></i>
+                </div>
+              </ng-container>
+            </div>
+          </div>
+
+          <!-- Seat Legend -->
+          <div class="seat-legend">
+            <div class="legend-item">
+              <span class="legend-box seat-standard"></span>
+              <span>Ghế thường (80,000 đ)</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-box seat-vip"></span>
+              <span>Ghế VIP (110,000 đ)</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-box seat-couple"></span>
+              <span>Ghế đôi / Sweetbox (220,000 đ)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>

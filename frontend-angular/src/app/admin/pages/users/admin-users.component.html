@@ -1,0 +1,107 @@
+<div class="users-container">
+  <div class="page-header">
+    <div class="header-info">
+      <h1>Quản Lý Tài Khoản Người Dùng</h1>
+      <p class="subtitle">Tìm kiếm hồ sơ người dùng, phân quyền quản trị và khóa/mở khóa tài khoản khách hàng.</p>
+    </div>
+  </div>
+
+  <!-- Success Toast Alert -->
+  <div class="toast-alert" *ngIf="successMessage">
+    <i class="fas fa-check-circle"></i>
+    <span>{{ successMessage }}</span>
+  </div>
+  <div class="toast-alert" *ngIf="errorMessage">
+    <i class="fas fa-exclamation-circle"></i>
+    <span>{{ errorMessage }}</span>
+  </div>
+
+  <!-- Filter Card -->
+  <div class="filter-card">
+    <div class="search-box">
+      <i class="fas fa-search search-icon"></i>
+      <input type="text" 
+             [(ngModel)]="searchQuery" 
+             (ngModelChange)="onSearchChange()" 
+             placeholder="Tìm kiếm theo họ tên, email, số điện thoại...">
+    </div>
+
+    <div class="role-filter-group">
+      <span class="filter-label">Vai trò:</span>
+      <select class="role-select" [(ngModel)]="roleFilter" (ngModelChange)="onRoleFilterChange($event)">
+        <option value="ALL">Tất cả vai trò</option>
+        <option *ngFor="let role of roles" [value]="role.name">{{ role.name }}</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Users Table Card -->
+  <div class="table-card">
+    <div *ngIf="isLoading" class="loading-state">
+      <i class="fas fa-spinner fa-spin"></i> Đang tải danh sách tài khoản...
+    </div>
+
+    <div *ngIf="!isLoading && filteredUsers.length === 0" class="empty-state">
+      <i class="fas fa-user-slash empty-icon"></i>
+      <p>Không tìm thấy tài khoản người dùng nào khớp với bộ lọc.</p>
+    </div>
+
+    <div class="table-responsive" *ngIf="!isLoading && filteredUsers.length > 0">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Mã ND</th>
+            <th>Hồ sơ</th>
+            <th>Thông tin liên lạc</th>
+            <th>Ngày đăng ký</th>
+            <th>Vai trò hệ thống</th>
+            <th>Trạng thái truy cập</th>
+            <th class="actions-header">Hành động nhanh</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let user of filteredUsers">
+            <td><code>#{{ user.id }}</code></td>
+            <td>
+              <div class="profile-cell">
+                <div class="avatar-box">{{ user.fullName.charAt(0) }}</div>
+                <span class="user-fullname">{{ user.fullName }}</span>
+              </div>
+            </td>
+            <td>
+              <div class="contact-cell">
+                <span><i class="far fa-envelope"></i> {{ user.email }}</span>
+                <span><i class="fas fa-phone-alt"></i> {{ user.phone }}</span>
+              </div>
+            </td>
+            <td>{{ user.createdDate }}</td>
+            <td>
+              <!-- Role selector -->
+              <div class="role-control">
+                <span class="role-badge" [ngClass]="user.role | lowercase">{{ user.role }}</span>
+                <select class="inline-role-select" [ngModel]="user.role" (ngModelChange)="changeRole(user, $event)">
+                  <option *ngFor="let role of roles" [value]="role.name">{{ role.name }}</option>
+                </select>
+              </div>
+            </td>
+            <td>
+              <span class="status-indicator" [class.status-active]="user.status === 'ACTIVE'" [class.status-locked]="user.status === 'LOCKED'">
+                {{ user.status === 'ACTIVE' ? 'Hoạt động' : 'Đã khóa' }}
+              </span>
+            </td>
+            <td class="action-cell">
+              <!-- Switch toggle -->
+              <button class="btn-lock-toggle" 
+                      [class.btn-unlock]="user.status === 'LOCKED'"
+                      [class.btn-lock]="user.status === 'ACTIVE'"
+                      (click)="toggleLock(user)">
+                <i class="fas" [class.fa-lock-open]="user.status === 'LOCKED'" [class.fa-lock]="user.status === 'ACTIVE'"></i>
+                <span>{{ user.status === 'ACTIVE' ? 'Khóa' : 'Mở khóa' }}</span>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

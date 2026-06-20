@@ -41,8 +41,6 @@ export class LoginPageComponent {
     ) { }
 
     login(): void {
-        console.log(`iden: ${this.identifier}`)
-        console.log(`pass: ${this.password}`)
         if (!this.identifier) {
             this.notificationId = 1;
             return;
@@ -58,17 +56,17 @@ export class LoginPageComponent {
         }).subscribe({
             next: (response) => {
                 if (response.success && response.data) {
-                    const redirectTo = this.route.snapshot.queryParamMap.get('redirecTo') || '/home';
+                    const redirectTo = this.route.snapshot.queryParamMap.get('redirectTo') || '/home';
                     this.router.navigateByUrl(redirectTo);
                 }
                 else {
                     this.notificationId = 3;
-                    console.log(`api error: ${response.message}`);
+                    console.log(`api error: ${response?.message}`);
                 }
                 this.loading = false;
             },
             error: (err) => {
-                console.log(`api error: ${err.error.message}`);
+                console.error('api error:', err);
                 this.notificationId = 3;
                 this.loading = false;
             }

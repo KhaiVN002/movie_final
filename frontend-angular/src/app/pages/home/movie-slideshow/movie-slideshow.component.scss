@@ -48,26 +48,37 @@
 }
 
 .movie-slideshow-section .movie-card {
-    height: 100%;
+    height: auto;
     padding: 2%;
     position: relative;
 
     &:hover {
-        > .poster > img {
-            transform: scale(1.1);
+        .poster > img {
+            transform: scale(1.08);
         }
-        > .movie-title {
+        .hover-overlay {
             opacity: 1;
+            pointer-events: auto;
         }
     }
 }
 
 .movie-slideshow-section .poster {
-    height: 100%;
+    width: 100%;
+    aspect-ratio: 2/3;
     overflow: hidden;
+    background-color: rgba(255, 255, 255, 0.02);
+    margin: 0 auto;
+    position: relative;
+
     > img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
         height: 100%;
-        transition: transform ease 0.3s;
+        object-fit: cover;
+        transition: transform ease 0.4s;
     }
 }
 
@@ -76,35 +87,136 @@
     top: 20px;
     left: 20px;
     display: block;
+    z-index: 15;
 
     > img {
         width: 100%;
     }
 }
 
-.movie-slideshow-section .movie-title {
+/* Hover Overlay Styles */
+.movie-slideshow-section .hover-overlay {
     position: absolute;
-    bottom: 0;
-    left: 2%;
-    padding-top: 13%;
-    padding-left: 5%;
-    padding-right: 5%;
-    width: 96%;
-    height: 35%;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.45);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    opacity: 0;
+    transition: opacity ease 0.3s;
+    pointer-events: none;
+    z-index: 10;
+}
+
+.movie-slideshow-section .play-btn-wrapper {
     display: flex;
     align-items: center;
     justify-content: center;
+    flex: 1;
+    width: 100%;
+    cursor: pointer;
+}
+
+.movie-slideshow-section .play-btn {
+    width: 65px;
+    height: 65px;
+    background-color: #d82d2d;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    transition: transform 0.2s ease, background-color 0.2s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+
+    &:hover {
+        transform: scale(1.1);
+        background-color: #ff3b3b;
+    }
+
+    i {
+        font-size: 20px;
+        margin-bottom: 4px;
+        margin-left: 3px; /* visual center adjustment */
+    }
+
+    .play-text {
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+    }
+}
+
+.movie-slideshow-section .bottom-overlay {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    padding: 12px 10px;
+    box-sizing: border-box;
     text-align: center;
-    text-overflow: ellipsis;
-    color: aqua;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.movie-slideshow-section .hover-title {
+    font-size: 13px;
     font-weight: bold;
-    background: linear-gradient(
-        to bottom,
-        rgba(0, 0, 0, 0.0) 0%,
-        rgba(0, 0, 0, 0.7) 20%,
-        rgba(0, 0, 0, 0.9) 30%, 
-        rgba(0, 0, 0, 1) 100%
-    );
-    opacity: 0;
-    transition: opacity ease 0.3s;
+    color: #fff;
+    text-transform: uppercase;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.movie-slideshow-section .action-buttons {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    width: 100%;
+}
+
+.movie-slideshow-section .action-btn {
+    flex: 1;
+    border: none;
+    border-radius: 3px;
+    font-size: 10px;
+    font-weight: bold;
+    cursor: pointer;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    height: 32px;
+    box-sizing: border-box;
+    transition: background-color 0.2s ease;
+}
+
+.movie-slideshow-section .detail-btn {
+    background-color: #d82d2d;
+    color: #fff;
+
+    &:hover {
+        background-color: #ff3b3b;
+    }
+}
+
+.movie-slideshow-section .buy-btn {
+    background-color: #d82d2d;
+    color: #fff;
+
+    &:hover {
+        background-color: #ff3b3b;
+    }
+
+    i {
+        font-size: 11px;
+    }
 }

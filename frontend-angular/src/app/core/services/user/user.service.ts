@@ -61,6 +61,12 @@ class UserService {
             `${this.apiUrl}/myInfo/preview`
         );
     }
+
+    uploadAvatar(userId: number, file: File): Observable<ApiResponse<string>> {
+        const formData = new FormData();
+        formData.append("file", file);
+        return this.http.post<ApiResponse<string>>(`${this.apiUrl}/${userId}/avatar`, formData);
+    }
 }
 
 export { UserService }

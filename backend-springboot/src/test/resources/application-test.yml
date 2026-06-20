@@ -1,0 +1,48 @@
+server:
+    port: 0
+    servlet:
+        context-path: /api
+
+spring:
+    datasource:
+        url: jdbc:h2:mem:cinema_test;MODE=PostgreSQL;DATABASE_TO_UPPER=false;DB_CLOSE_DELAY=-1
+        driver-class-name: org.h2.Driver
+        username: sa
+        password:
+    sql:
+        init:
+            mode: never
+    jpa:
+        hibernate:
+            ddl-auto: none
+        show-sql: false
+        properties:
+            hibernate:
+                jdbc:
+                    batch_size: 1000
+                    time_zone: Asia/Ho_Chi_Minh
+                order_inserts: true
+                order_updates: true
+    data:
+        redis:
+            repositories:
+                enabled: false
+
+jwt:
+    signerKey: test-secret-key-with-at-least-sixty-four-characters-for-hs512-tests
+    accessToken:
+        expirationTime: 900
+    refreshToken:
+        expirationTime: 2592000
+
+vnpay:
+    tmnCode: test
+    secretKey: test
+    payUrl: https://example.test/pay
+    returnUrl: http://localhost:4200/payment-result
+    command: pay
+    version: 2.1.0
+
+app:
+    cors:
+        allowed-origins: http://localhost:4200,http://127.0.0.1:4200

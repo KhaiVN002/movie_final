@@ -1,7 +1,6 @@
-import { Component, Input } from "@angular/core";
+import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { MovieDetailResponse } from "../../../core/models/responses/movie/movie-detail-response.model";
-import { RouterModule } from "@angular/router";
 
 @Component({
     standalone: true,
@@ -11,12 +10,16 @@ import { RouterModule } from "@angular/router";
         './booking.component.scss'
     ],
     imports: [
-        CommonModule,
-        RouterModule
+        CommonModule
     ]
 })
 export class BookingComponent {
     @Input() movie!: MovieDetailResponse;
+    @Output() buyTicket = new EventEmitter<void>();
+
+    onBuyTicket(): void {
+        this.buyTicket.emit();
+    }
 
     get starStates(): ('full' | 'half' | 'empty')[] {
         if (!this.movie) {

@@ -10,4 +10,11 @@ import java.util.Optional;
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
 
     Optional<Reservation> findByIdAndUserId(Long id, Long userId);
+
+    java.util.List<Reservation> findByUserIdOrderByStartTimeDesc(Long userId);
+
+    @org.springframework.data.jpa.repository.Query("SELECT DISTINCT r.showtime.movie.id FROM Reservation r")
+    java.util.List<Long> findMovieIdsWithReservations();
+
+    boolean existsByShowtimeId(Long showtimeId);
 }

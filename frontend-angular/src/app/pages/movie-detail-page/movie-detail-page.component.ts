@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ViewChild } from "@angular/core";
 import { MovieDetailResponse } from "../../core/models/responses/movie/movie-detail-response.model";
 import { ActivatedRoute } from "@angular/router";
 import { MovieService } from "../../core/services/movie/movie.service";
@@ -7,6 +7,7 @@ import { CommonModule } from "@angular/common";
 import { BookingComponent } from "./booking/booking.component";
 import { MoviePhotosComponent } from "./photos/movie-photos.component";
 import { MovieDetailInfoComponent } from "./detail/detail-info.component";
+import { ShowtimeModalComponent } from "../../shared/components/showtime-modal/showtime-modal.component";
 
 @Component({
     standalone: true,
@@ -20,13 +21,16 @@ import { MovieDetailInfoComponent } from "./detail/detail-info.component";
         CommonModule,
         BookingComponent,
         MoviePhotosComponent,
-        MovieDetailInfoComponent
+        MovieDetailInfoComponent,
+        ShowtimeModalComponent
     ]
 })
 export class MovieDetailPageComponent implements OnInit {
 
     movieId!: number;
     movie!: MovieDetailResponse;
+
+    @ViewChild("showtimeModal") showtimeModal!: ShowtimeModalComponent;
 
     constructor(
         private route: ActivatedRoute,
@@ -55,6 +59,10 @@ export class MovieDetailPageComponent implements OnInit {
                 console.log(`error: ${err}`);
             }
         });
+    }
+
+    openShowtimeModal(): void {
+        this.showtimeModal.open(this.movieId);
     }
 
 }

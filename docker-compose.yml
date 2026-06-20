@@ -16,6 +16,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_started
+    volumes:
+      - ./backend-springboot/uploads:/app/uploads
   angular-dev:
     build:
       context: ./frontend-angular

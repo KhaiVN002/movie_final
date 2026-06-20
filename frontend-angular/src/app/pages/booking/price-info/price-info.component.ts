@@ -2,10 +2,9 @@ import { CommonModule } from "@angular/common";
 import { Component, Input, OnInit } from "@angular/core";
 import { SeatDetailResponse } from "../../../core/models/responses/theater/seat-detail-response.model";
 import { ProductDetailResponse } from "../../../core/models/responses/product/product-detail-response.model";
-import { TicketService } from "../../../core/services/ticket/ticket.service";
 import { TicketPriceResponse } from "../../../core/models/responses/ticket/ticket-price-response.model";
 import { TicketPriceService } from "../../../core/services/ticket/ticket-price.service";
-import dayjs, { Dayjs } from "dayjs";
+import dayjs from "dayjs";
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import { ShowtimeDetailResponse } from "../../../core/models/responses/showtime/showtime-detail-response.model";
 import customParseFormat from 'dayjs/plugin/customParseFormat';
@@ -13,7 +12,6 @@ import { ProductOrderRequest } from "../../../core/models/requests/product/produ
 import { ReservationCreationRequest } from "../../../core/models/requests/reservation/reservation-creation-request.model";
 import { ReservationService } from "../../../core/services/reservation/reservation.service";
 import { Router } from "@angular/router";
-import { response } from "express";
 dayjs.extend(isSameOrAfter);
 dayjs.extend(customParseFormat);
 

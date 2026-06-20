@@ -1,0 +1,91 @@
+<div class="resource-container">
+  <div class="page-header">
+    <div class="header-info">
+      <h1>{{ title }}</h1>
+      <p class="subtitle">{{ subtitle }}</p>
+    </div>
+  </div>
+
+  <div class="filter-card" *ngIf="resource !== 'lookups'">
+    <div class="search-box">
+      <i class="fas fa-search search-icon"></i>
+      <input
+        type="text"
+        [(ngModel)]="searchQuery"
+        (keyup.enter)="onSearch()"
+        placeholder="Search records..."
+      />
+      <button class="btn btn-primary" (click)="onSearch()">
+        <i class="fas fa-search"></i> Search
+      </button>
+    </div>
+  </div>
+
+  <div class="alert alert-error" *ngIf="errorMessage">
+    <i class="fas fa-exclamation-circle"></i> {{ errorMessage }}
+  </div>
+
+  <div class="loading-state" *ngIf="isLoading">
+    <i class="fas fa-spinner fa-spin"></i> Loading...
+  </div>
+
+  <ng-container *ngIf="!isLoading && resource !== 'lookups'">
+    <div class="table-card" *ngIf="rows.length > 0">
+      <div class="table-responsive">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th *ngFor="let column of columns">{{ column.label }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let row of rows">
+              <td *ngFor="let column of columns">
+                <span
+                  *ngIf="column.type === 'status'; else normalCell"
+                  class="status-badge"
+                  [ngClass]="statusClass(row[column.key])"
+                >
+                  {{ getCell(row, column) }}
+                </span>
+                <ng-template #normalCell>{{ getCell(row, column) }}</ng-template>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="table-pagination" *ngIf="totalPages > 1">
+        <span class="pagination-info">Page {{ page + 1 }} / {{ totalPages }} ({{ totalElements }} records)</span>
+        <div class="pagination-buttons">
+          <button class="btn-pagination" [disabled]="page === 0" (click)="onPageChange(page - 1)">
+            <i class="fas fa-chevron-left"></i> Previous
+          </button>
+          <button class="btn-pagination" [disabled]="page === totalPages - 1" (click)="onPageChange(page + 1)">
+            Next <i class="fas fa-chevron-right"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="empty-state" *ngIf="rows.length === 0">
+      <i class="fas fa-database"></i>
+      <p>No records found.</p>
+    </div>
+  </ng-container>
+
+  <div class="lookup-grid" *ngIf="!isLoading && resource === 'lookups'">
+    <section class="lookup-section" *ngFor="let group of lookupGroups">
+      <div class="lookup-header">
+        <h2>{{ group.label }}</h2>
+        <span>{{ group.options.length }} items</span>
+      </div>
+      <div class="lookup-options">
+        <div class="lookup-option" *ngFor="let option of group.options">
+          <code>#{{ option.id }}</code>
+          <span>{{ option.code ? option.code + ' - ' : '' }}{{ option.name }}</span>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>

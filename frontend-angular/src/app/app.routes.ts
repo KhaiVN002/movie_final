@@ -14,7 +14,14 @@ import { BookingPageComponent } from './pages/booking/booking-page.component';
 import { CheckoutPageComponent } from './pages/checkout/checkout-page.component';
 import { PaymentResultPageComponent } from './pages/payment-result/payment-result-page.component';
 
+import { AdminGuard } from './admin/guards/admin.guard';
+
 export const routes: Routes = [
+    {
+        path: 'admin',
+        canActivate: [AdminGuard],
+        loadChildren: () => import('./admin/admin.routes').then(m => m.ADMIN_ROUTES)
+    },
     {
         path: '',
         component: MainLayoutComponent,

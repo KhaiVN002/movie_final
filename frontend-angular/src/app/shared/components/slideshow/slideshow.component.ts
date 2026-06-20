@@ -294,6 +294,27 @@ class SlideShowComponent implements AfterContentInit, OnDestroy {
         event.stopPropagation();
     }
 
+    onSlideClick(event: MouseEvent, slide: SlideItemComponent): void {
+        const target = event.target as HTMLElement;
+        const buyBtn = target.closest(".buy-btn");
+        const detailBtn = target.closest(".detail-btn");
+        const playBtn = target.closest(".play-btn-wrapper");
+
+        if (buyBtn) {
+            event.preventDefault();
+            event.stopPropagation();
+            slide.buyClick.emit();
+        } else if (detailBtn) {
+            event.preventDefault();
+            event.stopPropagation();
+            slide.detailClick.emit();
+        } else if (playBtn) {
+            event.preventDefault();
+            event.stopPropagation();
+            slide.detailClick.emit();
+        }
+    }
+
 }
 
 export { SlideShowComponent };

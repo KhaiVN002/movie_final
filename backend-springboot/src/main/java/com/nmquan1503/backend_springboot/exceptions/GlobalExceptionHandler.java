@@ -33,7 +33,7 @@ public class GlobalExceptionHandler {
                 .code(responseCode.getCode())
                 .message(responseCode.getMessage())
                 .build();
-        return ResponseEntity.status(401).body(response);
+        return ResponseEntity.status(403).body(response);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

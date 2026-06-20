@@ -5,7 +5,6 @@ import { MovieService } from "../../../core/services/movie/movie.service";
 import { PageRequest } from "../../../core/models/requests/page-request.model";
 import { CommonModule } from "@angular/common";
 import dayjs from "dayjs";
-import { response } from "express";
 import { finalize } from "rxjs";
 
 @Component({

@@ -33,6 +33,12 @@ public class ProductService {
         return productMapper.toListProductDetailResponse(products);
     }
 
+    public List<ProductDetailResponse> getAllProducts() {
+        List<Product> products = productRepository.findAll();
+        return productMapper.toListProductDetailResponse(products);
+    }
+
+
     public List<Product> fetchByIds(List<Byte> ids) {
         List<Product> products = productRepository.findAllById(ids);
         if (products.size() < ids.size()) {

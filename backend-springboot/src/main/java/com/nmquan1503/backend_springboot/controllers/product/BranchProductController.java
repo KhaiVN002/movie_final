@@ -8,6 +8,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -19,6 +20,7 @@ public class BranchProductController {
     BranchProductService branchProductService;
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     ResponseEntity<ApiResponse<Void>> createBranchProduct(
             @RequestBody BranchProductCreationRequest request
     ) {
@@ -28,6 +30,7 @@ public class BranchProductController {
     }
 
     @PutMapping("/{branchProductId}")
+    @PreAuthorize("hasRole('ADMIN')")
     ResponseEntity<ApiResponse<Void>> updateBranchProduct(
             @PathVariable Short branchProductId,
             @RequestBody BranchProductUpdateRequest request
@@ -38,3 +41,4 @@ public class BranchProductController {
     }
 
 }
+

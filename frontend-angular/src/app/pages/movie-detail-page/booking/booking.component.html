@@ -12,7 +12,7 @@
                 <span class="rating-count">{{ movie.ratingCount + ' đánh giá' }}</span>
             </div>
             <div class="not-rating" *ngIf="!movie.ratingCount">Chưa có đánh giá.</div>
-            <a class="book-button" [routerLink]="['/movies', movie.id, 'showtimes']">Mua vé</a>
+            <button class="book-button" (click)="onBuyTicket()">Mua vé</button>
         </div>
     </div>
 </div>

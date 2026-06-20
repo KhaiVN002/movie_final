@@ -1,29 +1,299 @@
 <div class="profile-section">
     <div class="container">
         <div class="wrapper">
-            <!-- <div class="navigator">
-                <span class="title">Tài khoản CGV</span>
+            <!-- Left Navigation Menu -->
+            <div class="navigator">
+                <span class="title">TÀI KHOẢN CGV</span>
                 <ul class="options">
-                    <li 
-                        class="option" 
-                        [class.active]="page === 1"
-                        (click)="page = 1"
-                    >
-                        <span>Thông tin tài khoản</span>
+                    <li class="option" [class.active]="page === 1" (click)="page = 1">
+                        <span>THÔNG TIN CHUNG</span>
                     </li>
-                    <li 
-                        class="option"
-                        [class.active]="page === 2" 
-                        (click)="page = 2"
-                    >
-                        <span>Lịch sử giao dịch</span>
+                    <li class="option" [class.active]="page === 2" (click)="page = 2">
+                        <span>CHI TIẾT TÀI KHOẢN</span>
+                    </li>
+                    <li class="option disabled">
+                        <span>CÀI ĐẶT MÃ THANH TOÁN</span>
+                    </li>
+                    <li class="option disabled">
+                        <span>THẺ THÀNH VIÊN</span>
+                    </li>
+                    <li class="option disabled">
+                        <span>ĐIỂM THƯỞNG</span>
+                    </li>
+                    <li class="option disabled">
+                        <span>THẺ QUÀ TẶNG</span>
+                    </li>
+                    <li class="option disabled">
+                        <span>VOUCHER</span>
+                    </li>
+                    <li class="option disabled">
+                        <span>COUPON</span>
+                    </li>
+                    <li class="option" [class.active]="page === 3" (click)="page = 3">
+                        <span>LỊCH SỬ GIAO DỊCH</span>
                     </li>
                 </ul>
             </div>
-            <div class="content">
-                <personal-info *ngIf="page === 1"></personal-info>
-            </div> -->
-            <personal-info *ngIf="user" [user]="user"></personal-info>
+
+            <!-- Right Content Area -->
+            <div class="content-panel" *ngIf="user">
+                
+                <!-- Tab 1: THÔNG TIN CHUNG -->
+                <div class="tab-content" *ngIf="page === 1">
+                    <h2 class="content-header">THÔNG TIN CHUNG</h2>
+                    
+                    <div class="dashboard-box">
+                        <div class="dashboard-top">
+                            <!-- Avatar Column -->
+                            <div class="avatar-col">
+                                <div class="avatar-container">
+                                    <img *ngIf="user.avatarURL" [src]="user.avatarURL" alt="Avatar" />
+                                    <img *ngIf="!user.avatarURL" src="/assets/images/placeholders/default-avatar.png" alt="Default Avatar" />
+                                </div>
+                                <input type="file" #avatarInput accept="image/*" (change)="onAvatarSelected($event)" style="display: none;" />
+                                <button class="gray-btn small" (click)="avatarInput.click()">Thay đổi</button>
+                            </div>
+
+                            <!-- Greeting & Description -->
+                            <div class="greeting-col">
+                                <p class="welcome-text">Xin chào <strong>{{ user.fullName }}</strong>,</p>
+                                <p class="desc-text">Với trang này, bạn sẽ quản lý được tất cả thông tin tài khoản của mình.</p>
+                            </div>
+
+                            <!-- Barcode Column -->
+                            <div class="barcode-col">
+                                <span class="barcode-title">Thẻ thành viên</span>
+                                <div class="barcode-wrapper">
+                                    <!-- Simple CSS Barcode lines -->
+                                    <div class="barcode-lines">
+                                        <span></span><span></span><span></span><span></span><span></span>
+                                        <span></span><span></span><span></span><span></span><span></span>
+                                        <span></span><span></span><span></span><span></span><span></span>
+                                    </div>
+                                    <span class="barcode-label">CGV Member</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Membership Level Box -->
+                        <div class="membership-box">
+                            <div class="membership-grid">
+                                <!-- Card Tier -->
+                                <div class="grid-item primary">
+                                    <div class="tier-badge">
+                                        <i class="fas fa-star"></i> MEMBER
+                                    </div>
+                                    <div class="tier-info">
+                                        <p>Cấp Độ Thẻ: <span>MEMBER</span></p>
+                                        <p>Tổng Chi Tiêu: <span>0 đ</span></p>
+                                        <p>Điểm CGV: <span>0 P</span></p>
+                                    </div>
+                                </div>
+                                <!-- Gift Card -->
+                                <div class="grid-item">
+                                    <div class="item-title">Thẻ quà tặng</div>
+                                    <div class="item-value">0 đ</div>
+                                    <button class="blue-btn">Xem</button>
+                                </div>
+                                <!-- Voucher -->
+                                <div class="grid-item">
+                                    <div class="item-title">Voucher</div>
+                                    <div class="item-value">0</div>
+                                    <button class="blue-btn">Xem</button>
+                                </div>
+                                <!-- Coupon -->
+                                <div class="grid-item">
+                                    <div class="item-title">Coupon</div>
+                                    <div class="item-value">1</div>
+                                    <button class="blue-btn">Xem</button>
+                                </div>
+                                <!-- Member Card -->
+                                <div class="grid-item">
+                                    <div class="item-title">Thẻ Thành Viên</div>
+                                    <div class="item-value">1</div>
+                                    <button class="blue-btn">Xem</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contact Details Box -->
+                    <div class="contact-box">
+                        <h3 class="box-title">Thông tin tài khoản</h3>
+                        <div class="box-subheader">
+                            <span>LIÊN HỆ</span>
+                            <button class="gray-btn tiny" (click)="page = 2">Thay đổi</button>
+                        </div>
+                        <div class="contact-details">
+                            <p><strong>Tên:</strong> {{ user.fullName }}</p>
+                            <p><strong>Email:</strong> {{ user.email }}</p>
+                            <p><strong>Điện thoại:</strong> {{ user.phone }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 2: CHI TIẾT TÀI KHOẢN (EDIT PROFILE) -->
+                <div class="tab-content" *ngIf="page === 2">
+                    <h2 class="content-header">THAY ĐỔI THÔNG TIN</h2>
+                    
+                    <div class="edit-form-container">
+                        <div class="form-grid">
+                            <!-- Left Form Column -->
+                            <div class="form-column">
+                                <div class="form-group">
+                                    <label class="required-label">Tên *</label>
+                                    <input type="text" [(ngModel)]="fullName" class="form-control" />
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="required-label">Điện thoại *</label>
+                                    <input type="text" [value]="user.phone" class="form-control" disabled />
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="required-label">Giới tính *</label>
+                                    <div class="radio-group">
+                                        <label *ngFor="let g of genders" class="radio-label">
+                                            <input type="radio" name="gender" [value]="g.id" [(ngModel)]="genderId" />
+                                            {{ g.name }}
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Ngày sinh</label>
+                                    <div class="read-only-text">{{ formattedBirthday }}</div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="required-label">Địa chỉ email *</label>
+                                    <div class="read-only-text">{{ user.email }}</div>
+                                </div>
+
+                                <div class="form-group checkbox-group">
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" [(ngModel)]="changePassword" />
+                                        Tôi muốn thay đổi mật khẩu
+                                    </label>
+                                </div>
+
+                                <div class="form-group" *ngIf="changePassword">
+                                    <label class="required-label">Mật khẩu mới *</label>
+                                    <input type="password" [(ngModel)]="newPassword" class="form-control" placeholder="Nhập mật khẩu mới" />
+                                </div>
+                            </div>
+
+                            <!-- Right Form Column -->
+                            <div class="form-column">
+                                <div class="form-group">
+                                    <label class="required-label">Thành phố/Tỉnh *</label>
+                                    <select [(ngModel)]="selectedProvinceId" (change)="onProvinceChange()" class="form-control select-control">
+                                        <option [value]="0">Chọn Thành phố/Tỉnh</option>
+                                        <option *ngFor="let p of provinces" [value]="p.id">{{ p.name }}</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="required-label">Quận *</label>
+                                    <select [(ngModel)]="selectedDistrictId" (change)="onDistrictChange()" class="form-control select-control">
+                                        <option [value]="0">Chọn Quận/Huyện</option>
+                                        <option *ngFor="let d of districts" [value]="d.id">{{ d.name }}</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="required-label">Phường/Xã *</label>
+                                    <select [(ngModel)]="selectedWardId" class="form-control select-control">
+                                        <option [value]="0">Chọn Phường/Xã</option>
+                                        <option *ngFor="let w of wards" [value]="w.id">{{ w.name }}</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="required-label">Địa chỉ *</label>
+                                    <input type="text" [(ngModel)]="specificAddress" class="form-control" placeholder="Địa chỉ cụ thể" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Optional info details -->
+                        <div class="optional-info-section">
+                            <h4 class="section-title">Thông Tin Tùy Chọn</h4>
+                            
+                            <div class="form-grid">
+                                <div class="form-column">
+                                    <div class="form-group">
+                                        <label>Số thẻ thành viên</label>
+                                        <div class="read-only-text">9992-4146-4677-3689</div>
+                                    </div>
+                                </div>
+                                <div class="form-column">
+                                    <div class="form-group">
+                                        <label>Rạp yêu thích</label>
+                                        <div class="read-only-text">CGV Vincom Royal City</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="form-actions">
+                            <button class="back-link-btn" (click)="page = 1">« Quay lại</button>
+                            <button class="save-btn" (click)="saveProfile()">LƯU LẠI</button>
+                        </div>
+
+                        <div class="form-note">
+                            * Thông tin bắt buộc
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 3: LỊCH SỬ GIAO DỊCH -->
+                <div class="tab-content" *ngIf="page === 3">
+                    <h2 class="content-header">LỊCH SỬ GIAO DỊCH</h2>
+                    
+                    <div class="transaction-history">
+                        <div *ngIf="isLoadingHistory" class="loading-state">
+                            <i class="fas fa-spinner fa-spin"></i> Đang tải lịch sử giao dịch...
+                        </div>
+
+                        <div *ngIf="!isLoadingHistory && reservations.length === 0" class="empty-state">
+                            <i class="fas fa-ticket-alt"></i>
+                            <p>Bạn chưa thực hiện giao dịch mua vé nào.</p>
+                        </div>
+
+                        <div class="tickets-list" *ngIf="!isLoadingHistory && reservations.length > 0">
+                            <div class="ticket-card" *ngFor="let res of reservations" [class.paid]="res.status.name === 'PAID'">
+                                <div class="ticket-header">
+                                    <span class="booking-code">Mã đơn: #{{ res.id }}</span>
+                                    <span class="ticket-status" [class]="res.status.name | lowercase">
+                                        {{ res.status.name === 'PAID' ? 'Đã thanh toán' : res.status.name === 'PENDING' ? 'Chờ thanh toán' : 'Đã hết hạn' }}
+                                    </span>
+                                </div>
+                                <div class="ticket-body">
+                                    <div class="movie-info">
+                                        <h3 class="movie-title">{{ res.showtime.movie.title }}</h3>
+                                        <p class="showtime-details">
+                                            <i class="far fa-clock"></i> 
+                                            {{ dayjs(res.showtime.startTime).format('HH:mm - DD/MM/YYYY') }}
+                                        </p>
+                                        <p class="room-details">
+                                            <i class="fas fa-door-open"></i> 
+                                            {{ res.showtime.room.name }} &bull; {{ res.showtime.room.branch.name }}
+                                        </p>
+                                    </div>
+                                    <div class="booking-details">
+                                        <p><strong>Ghế:</strong> <span class="seat-codes">{{ getSeatsString(res.seats) }}</span></p>
+                                        <p><strong>Đồ ăn/Uống:</strong> {{ getConcessionsString(res.items) }}</p>
+                                        <p class="total-cost"><strong>Tổng tiền:</strong> {{ res.ticketPrice | number:'1.0-0' }} đ</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
         </div>
     </div>
 </div>

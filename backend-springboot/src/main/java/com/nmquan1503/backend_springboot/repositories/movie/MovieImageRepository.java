@@ -10,5 +10,7 @@ import org.springframework.stereotype.Repository;
 public interface MovieImageRepository extends JpaRepository<MovieImage, Long> {
 
     Page<MovieImage> findByMovieId(Long movieId, Pageable pageable);
+    java.util.List<MovieImage> findByMovieId(Long movieId);
+    void deleteByMovieId(Long movieId);
 
 }

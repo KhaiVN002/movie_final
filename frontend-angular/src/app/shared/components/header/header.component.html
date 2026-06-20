@@ -50,6 +50,7 @@
                         </div>
                     </a>
                     <ul class="submenu">
+                        <li *ngIf="isAdmin"><a [routerLink]="['/admin']">Quản trị</a></li>
                         <li><a [routerLink]="['/profile']">Hồ sơ</a></li>
                         <li><a [style.cursor]="'pointer'" (click)="logout()" >Đăng xuất</a></li>
                     </ul>

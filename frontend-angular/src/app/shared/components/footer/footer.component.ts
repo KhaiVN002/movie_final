@@ -3,7 +3,6 @@ import { RouterModule } from "@angular/router";
 import { RoomTypeService } from "../../../core/services/theater/room-type.service";
 import { RoomTypeIconResponse } from "../../../core/models/responses/theater/room-type-icon-response.model";
 import { SlideShowComponent } from "../slideshow/slideshow.component";
-import { response } from "express";
 import { SlideItemComponent } from "../slideshow/slide-item/slide-item.component";
 import { CommonModule } from "@angular/common";
 import { ApiResponse } from "../../../core/models/responses/api-response.model";

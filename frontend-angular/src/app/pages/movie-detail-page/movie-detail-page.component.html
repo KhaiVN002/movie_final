@@ -1,4 +1,6 @@
 <metadata *ngIf="movie" [movie]="movie"></metadata>
-<booking *ngIf="movie" [movie]="movie"></booking>
+<booking *ngIf="movie" [movie]="movie" (buyTicket)="openShowtimeModal()"></booking>
 <movie-photos *ngIf="movie" [movie]="movie"></movie-photos>
 <movie-detail-info *ngIf="movie" [movie]="movie"></movie-detail-info>
+
+<app-showtime-modal #showtimeModal></app-showtime-modal>

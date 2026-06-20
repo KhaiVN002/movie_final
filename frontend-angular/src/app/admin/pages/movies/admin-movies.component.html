@@ -1,0 +1,250 @@
+<div class="movies-container">
+  <div class="page-header">
+    <div class="header-info">
+      <h1>Quản Lý Danh Sách Phim</h1>
+      <p class="subtitle">Thêm nhanh phim mới, cập nhật thông tin, poster/backdrop và quản lý trạng thái đặt vé.</p>
+    </div>
+    <button class="btn btn-primary" type="button" (click)="openAddMovie()">
+      <i class="fas fa-plus"></i> Thêm phim
+    </button>
+  </div>
+
+  <div class="filter-card">
+    <div class="filter-content">
+      <div class="filter-label-text"><i class="fas fa-filter"></i> Phân loại phim:</div>
+      <div class="status-filters">
+        <button class="filter-btn" type="button" [class.active]="movieFilterType === 'ALL'" (click)="movieFilterType = 'ALL'">
+          Tất cả phim ({{ movies.length }})
+        </button>
+        <button class="filter-btn status-booked" type="button" [class.active]="movieFilterType === 'BOOKED'" (click)="movieFilterType = 'BOOKED'">
+          Đã có vé đặt
+        </button>
+        <button class="filter-btn status-unbooked" type="button" [class.active]="movieFilterType === 'UNBOOKED'" (click)="movieFilterType = 'UNBOOKED'">
+          Chưa có vé đặt
+        </button>
+      </div>
+    </div>
+    <div class="search-box">
+      <i class="fas fa-search search-icon"></i>
+      <input
+        type="text"
+        [(ngModel)]="searchQuery"
+        (ngModelChange)="onSearchChange()"
+        placeholder="Tìm kiếm phim theo tên..."
+      />
+    </div>
+  </div>
+
+  <div class="alert alert-error" *ngIf="errorMessage">
+    <i class="fas fa-exclamation-circle"></i> {{ errorMessage }}
+  </div>
+  <div class="alert alert-success" *ngIf="successMessage">
+    <i class="fas fa-check-circle"></i> {{ successMessage }}
+  </div>
+
+  <div class="loading-wrapper" *ngIf="isLoading && !movies.length">
+    <div class="spinner"></div>
+    <p>Đang tải danh sách phim...</p>
+  </div>
+
+  <div class="table-card" *ngIf="movies.length">
+    <div class="table-responsive">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Poster</th>
+            <th>Tên phim</th>
+            <th>Ngày khởi chiếu</th>
+            <th>Thời lượng</th>
+            <th>Độ tuổi</th>
+            <th>Ngôn ngữ</th>
+            <th>Trạng thái đặt vé</th>
+            <th class="actions-col">Hành động</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let movie of filteredMoviesList">
+            <td class="poster-td">
+              <div class="poster-crop">
+                <img [src]="movie.posterURL" [alt]="movie.title" onerror="this.src='https://placehold.co/100x150/1e293b/ffffff?text=No+Poster'" />
+              </div>
+            </td>
+            <td class="title-td">
+              <strong>{{ movie.title }}</strong>
+              <span class="tagline" *ngIf="movie.tagline">"{{ movie.tagline }}"</span>
+            </td>
+            <td>{{ movie.releasedDate | date:'dd/MM/yyyy' }}</td>
+            <td>{{ movie.duration }} phút</td>
+            <td>
+              <span class="badge badge-age" [class]="'badge-' + (movie.ageRating?.code || 'P')">
+                {{ movie.ageRating?.code || 'P' }}
+              </span>
+            </td>
+            <td>{{ movie.originalLanguage?.name || 'Tiếng Anh' }}</td>
+            <td>
+              <span class="booking-status-badge" [class.booked]="movie.hasBookings" [class.unbooked]="!movie.hasBookings">
+                {{ movie.hasBookings ? 'Đã có vé đặt' : 'Chưa có vé đặt' }}
+              </span>
+            </td>
+            <td class="actions-td">
+              <button class="btn-table btn-table-edit" type="button" (click)="openEditMovie(movie)" title="Sửa phim">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button
+                class="btn-table btn-table-delete"
+                type="button"
+                [disabled]="movie.hasBookings"
+                [class.btn-disabled]="movie.hasBookings"
+                (click)="deleteMovie(movie.id)"
+                [title]="movie.hasBookings ? 'Không thể xóa phim đã có vé đặt' : 'Xóa phim'"
+              >
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="table-pagination" *ngIf="totalPages > 1">
+      <span class="pagination-info">Trang {{ page + 1 }} / {{ totalPages }} (Tổng số {{ totalElements }} phim)</span>
+      <div class="pagination-buttons">
+        <button class="btn-pagination" type="button" [disabled]="page === 0" (click)="onPageChange(page - 1)">
+          <i class="fas fa-chevron-left"></i> Trước
+        </button>
+        <button class="btn-pagination" type="button" [disabled]="page === totalPages - 1" (click)="onPageChange(page + 1)">
+          Sau <i class="fas fa-chevron-right"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="empty-state" *ngIf="!isLoading && !movies.length">
+    Chưa có phim nào trong hệ thống.
+  </div>
+
+  <div class="modal-backdrop" *ngIf="showForm">
+    <div class="modal-box modal-large">
+      <div class="modal-header">
+        <h2>{{ isEditing ? 'Cập Nhật Phim' : 'Thêm Phim Mới' }}</h2>
+        <button class="close-btn" type="button" (click)="closeForm()">&times;</button>
+      </div>
+
+      <form [formGroup]="movieForm" (ngSubmit)="saveMovie()">
+        <div class="modal-body">
+          <div class="modal-layout-grid">
+            <!-- Left Side: Basic Info Form -->
+            <div class="form-section-left">
+              <div class="form-group">
+                <label for="title">Tên phim <span class="required">*</span></label>
+                <input type="text" id="title" formControlName="title" placeholder="Nhập tên phim đầy đủ..." />
+                <div class="error-feedback" *ngIf="movieForm.get('title')?.touched && movieForm.get('title')?.invalid">
+                  Tên phim cần có ít nhất 2 ký tự.
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="duration">Thời lượng (phút)</label>
+                  <input type="number" id="duration" formControlName="duration" placeholder="Ví dụ: 90" />
+                </div>
+                <div class="form-group">
+                  <label for="releasedDate">Ngày khởi chiếu</label>
+                  <input type="date" id="releasedDate" formControlName="releasedDate" />
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="lang">Ngôn ngữ gốc</label>
+                  <select id="lang" formControlName="originalLanguageId">
+                    <option [ngValue]="null">Tự chọn mặc định</option>
+                    <option *ngFor="let language of languages" [ngValue]="language.id">{{ language.name }}</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="rating">Độ tuổi</label>
+                  <select id="rating" formControlName="ageRatingId">
+                    <option [ngValue]="null">Không đặt</option>
+                    <option *ngFor="let rating of ageRatings" [ngValue]="rating.id">{{ rating.code }} - {{ rating.description }}</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="trailer">Trailer URL</label>
+                <input type="text" id="trailer" formControlName="trailerURL" placeholder="https://www.youtube.com/watch?v=..." />
+              </div>
+
+              <div class="form-group">
+                <label for="tagline">Tagline</label>
+                <input type="text" id="tagline" formControlName="tagline" placeholder="Một câu ngắn mô tả ngắn gọn về phim..." />
+              </div>
+
+              <div class="form-group">
+                <label for="overview">Tóm tắt nội dung</label>
+                <textarea id="overview" formControlName="overview" rows="4" placeholder="Nội dung tóm tắt chi tiết của phim..."></textarea>
+              </div>
+            </div>
+
+            <!-- Right Side: Categories and Poster/Backdrop -->
+            <div class="form-section-right">
+              <div class="form-group">
+                <label>Thể loại phim</label>
+                <div class="categories-chips">
+                  <button type="button" 
+                          *ngFor="let category of categories" 
+                          class="category-chip" 
+                          [class.selected]="isCategoryChecked(category.id)"
+                          (click)="toggleCategory(category.id)">
+                    <i class="fas" [class.fa-plus]="!isCategoryChecked(category.id)" [class.fa-check]="isCategoryChecked(category.id)"></i>
+                    {{ category.name }}
+                  </button>
+                </div>
+              </div>
+
+              <div class="upload-section">
+                <div class="form-group">
+                  <label>Poster phim</label>
+                  <div class="file-upload-wrapper">
+                    <input type="file" id="posterUpload" (change)="onPosterSelected($event)" accept="image/*, .webp, .png, .jpg, .jpeg, .gif, .svg, .bmp, .tiff, .jfif" class="file-input-hidden" />
+                    <label for="posterUpload" class="file-upload-btn">
+                      <i class="fas fa-image"></i> Chọn ảnh Poster
+                    </label>
+                  </div>
+                  <div class="preview-box poster-preview" *ngIf="posterPreviewUrl">
+                    <img [src]="posterPreviewUrl" alt="Poster Preview" />
+                    <button type="button" class="remove-preview-btn" (click)="clearPosterPreview()">&times;</button>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label>Backdrop phim (Có thể chọn nhiều)</label>
+                  <div class="file-upload-wrapper">
+                    <input type="file" id="backdropUpload" (change)="onBackdropSelected($event)" accept="image/*, .webp, .png, .jpg, .jpeg, .gif, .svg, .bmp, .tiff, .jfif" class="file-input-hidden" multiple />
+                    <label for="backdropUpload" class="file-upload-btn">
+                      <i class="fas fa-photo-video"></i> Chọn ảnh Backdrop
+                    </label>
+                  </div>
+                  <div class="backdrop-previews-list" *ngIf="backdropItems.length > 0">
+                    <div class="preview-box backdrop-preview" *ngFor="let item of backdropItems; let i = index">
+                      <img [src]="item.url" alt="Backdrop Preview" />
+                      <button type="button" class="remove-preview-btn" (click)="clearBackdropPreview(i)">&times;</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeForm()">Hủy bỏ</button>
+          <button type="submit" class="btn btn-primary" [disabled]="!canSaveMovie()">
+            {{ isLoading ? 'Đang xử lý...' : (isEditing ? 'Lưu thay đổi' : 'Thêm phim') }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

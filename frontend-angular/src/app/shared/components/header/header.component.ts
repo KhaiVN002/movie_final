@@ -5,7 +5,6 @@ import { BaseComponent } from "../base/base.component";
 import { UserService } from "../../../core/services/user/user.service";
 import { AuthenticationService } from "../../../core/services/authentication/authentication.service";
 import { UserPreviewResponse } from "../../../core/models/responses/user/user-preview-response.model";
-import { response } from "express";
 
 @Component({
     standalone: true,
@@ -26,6 +25,22 @@ export class HeaderComponent implements OnInit {
     isOverlayActive: boolean = false;
 
     user!: UserPreviewResponse;
+
+    get isAdmin(): boolean {
+        if (typeof window === 'undefined') return false;
+        const token = this.authService.getAccessToken();
+        if (!token) return false;
+        try {
+            const payloadStr = token.split('.')[1];
+            if (!payloadStr) return false;
+            const base64 = payloadStr.replace(/-/g, '+').replace(/_/g, '/');
+            const paddedBase64 = base64.padEnd(base64.length + (4 - base64.length % 4) % 4, '=');
+            const payload = JSON.parse(atob(paddedBase64));
+            return !!(payload && payload.scope && payload.scope.split(' ').includes('ROLE_ADMIN'));
+        } catch {
+            return false;
+        }
+    }
 
     constructor(
         private userService: UserService,

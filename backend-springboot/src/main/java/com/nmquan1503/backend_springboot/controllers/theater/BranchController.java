@@ -12,6 +12,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.nmquan1503.backend_springboot.dtos.responses.theater.RoomDetailResponse;
+import com.nmquan1503.backend_springboot.services.theater.RoomService;
+
 import java.util.List;
 
 @Controller
@@ -21,6 +24,7 @@ import java.util.List;
 public class BranchController {
 
     BranchService branchService;
+    RoomService roomService;
 
     @GetMapping("/options/province/{provinceId}")
     ResponseEntity<ApiResponse<List<BranchOptionResponse>>> getBranchOptionsByProvinceId(
@@ -36,6 +40,16 @@ public class BranchController {
     ResponseEntity<ApiResponse<List<BranchOptionResponse>>> getAllBranchOptions() {
         ApiResponse<List<BranchOptionResponse>> response = ApiResponse.success(
             branchService.getAllBranchOptions()
+        );
+        return ResponseEntity.ok().body(response);
+    }
+
+    @GetMapping("/{branchId}/rooms")
+    ResponseEntity<ApiResponse<List<RoomDetailResponse>>> getRoomsByBranchId(
+            @PathVariable Short branchId
+    ) {
+        ApiResponse<List<RoomDetailResponse>> response = ApiResponse.success(
+                roomService.getRoomsByBranchId(branchId)
         );
         return ResponseEntity.ok().body(response);
     }

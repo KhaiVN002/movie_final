@@ -38,4 +38,12 @@ public class ReservationController {
         return ResponseEntity.ok().body(response);
     }
 
+    @GetMapping("/my")
+    ResponseEntity<ApiResponse<java.util.List<ReservationDetailResponse>>> getMyReservations() {
+        ApiResponse<java.util.List<ReservationDetailResponse>> response = ApiResponse.success(
+                reservationService.getMyReservations()
+        );
+        return ResponseEntity.ok().body(response);
+    }
+
 }

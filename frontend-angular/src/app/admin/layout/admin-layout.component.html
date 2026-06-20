@@ -1,0 +1,220 @@
+<div class="admin-container" [class.sidebar-collapsed]="isSidebarCollapsed">
+  <aside class="admin-sidebar" [class.collapsed]="isSidebarCollapsed">
+    <div class="sidebar-brand">
+      <span class="brand-text">
+        <i class="fas fa-video highlight brand-icon"></i>
+        <span class="brand-title">CGV <span class="highlight">Admin</span></span>
+      </span>
+      <button class="sidebar-toggle" (click)="toggleSidebar()" aria-label="Toggle sidebar">
+        <i class="fas" [class.fa-chevron-left]="!isSidebarCollapsed" [class.fa-chevron-right]="isSidebarCollapsed"></i>
+      </button>
+    </div>
+
+    <nav class="sidebar-menu">
+      <div class="menu-group" [class.expanded]="menuGroups.analytics">
+        <div class="group-header" (click)="toggleGroup('analytics')">
+          <i class="fas fa-chart-pie group-icon"></i>
+          <span class="group-title">Thống kê</span>
+          <i class="fas fa-chevron-down group-arrow"></i>
+        </div>
+        <div class="group-items">
+          <a routerLink="/admin/dashboard" routerLinkActive="active" class="menu-item" title="Tổng quan">
+            <i class="fas fa-tachometer-alt"></i>
+            <span>Tổng quan</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="menu-group" [class.expanded]="menuGroups.cinema">
+        <div class="group-header" (click)="toggleGroup('cinema')">
+          <i class="fas fa-film group-icon"></i>
+          <span class="group-title">Quản lý rạp</span>
+          <i class="fas fa-chevron-down group-arrow"></i>
+        </div>
+        <div class="group-items">
+          <a routerLink="/admin/movies" routerLinkActive="active" class="menu-item" title="Phim">
+            <i class="fas fa-ticket-alt"></i>
+            <span>Phim</span>
+          </a>
+          <a routerLink="/admin/showtimes" routerLinkActive="active" class="menu-item" title="Lịch chiếu">
+            <i class="fas fa-calendar-alt"></i>
+            <span>Lịch chiếu</span>
+          </a>
+          <a routerLink="/admin/cinemas" routerLinkActive="active" class="menu-item" title="Sơ đồ rạp">
+            <i class="fas fa-theater-masks"></i>
+            <span>Sơ đồ rạp</span>
+          </a>
+          <a routerLink="/admin/branches" routerLinkActive="active" class="menu-item" title="Chi nhánh">
+            <i class="fas fa-building"></i>
+            <span>Chi nhánh</span>
+          </a>
+          <a routerLink="/admin/rooms" routerLinkActive="active" class="menu-item" title="Phòng chiếu">
+            <i class="fas fa-door-open"></i>
+            <span>Phòng chiếu</span>
+          </a>
+          <a routerLink="/admin/seats" routerLinkActive="active" class="menu-item" title="Ghế ngồi">
+            <i class="fas fa-chair"></i>
+            <span>Ghế ngồi</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="menu-group" [class.expanded]="menuGroups.concessions">
+        <div class="group-header" (click)="toggleGroup('concessions')">
+          <i class="fas fa-hamburger group-icon"></i>
+          <span class="group-title">Đồ ăn & Nước uống</span>
+          <i class="fas fa-chevron-down group-arrow"></i>
+        </div>
+        <div class="group-items">
+          <a routerLink="/admin/products" routerLinkActive="active" class="menu-item" title="Sản phẩm F&B">
+            <i class="fas fa-cookie-bite"></i>
+            <span>Sản phẩm F&B</span>
+          </a>
+          <a routerLink="/admin/product-branches" routerLinkActive="active" class="menu-item" title="Giá F&B theo chi nhánh">
+            <i class="fas fa-tags"></i>
+            <span>Giá F&B theo chi nhánh</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="menu-group" [class.expanded]="menuGroups.customers">
+        <div class="group-header" (click)="toggleGroup('customers')">
+          <i class="fas fa-users-cog group-icon"></i>
+          <span class="group-title">Doanh thu & Người dùng</span>
+          <i class="fas fa-chevron-down group-arrow"></i>
+        </div>
+        <div class="group-items">
+          <a routerLink="/admin/bookings" routerLinkActive="active" class="menu-item" title="Đặt vé">
+            <i class="fas fa-shopping-bag"></i>
+            <span>Đặt vé</span>
+          </a>
+          <a routerLink="/admin/payments" routerLinkActive="active" class="menu-item" title="Thanh toán">
+            <i class="fas fa-credit-card"></i>
+            <span>Thanh toán</span>
+          </a>
+          <a routerLink="/admin/users" routerLinkActive="active" class="menu-item" title="Người dùng">
+            <i class="fas fa-user-friends"></i>
+            <span>Người dùng</span>
+          </a>
+          <a routerLink="/admin/roles" routerLinkActive="active" class="menu-item" title="Vai trò">
+            <i class="fas fa-user-shield"></i>
+            <span>Vai trò</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="menu-group" [class.expanded]="menuGroups.system">
+        <div class="group-header" (click)="toggleGroup('system')">
+          <i class="fas fa-cogs group-icon"></i>
+          <span class="group-title">Hệ thống</span>
+          <i class="fas fa-chevron-down group-arrow"></i>
+        </div>
+        <div class="group-items">
+          <a routerLink="/admin/config" routerLinkActive="active" class="menu-item" title="Giá vé">
+            <i class="fas fa-sliders-h"></i>
+            <span>Giá vé</span>
+          </a>
+          <a routerLink="/admin/lookups" routerLinkActive="active" class="menu-item" title="Cài đặt tra cứu">
+            <i class="fas fa-list"></i>
+            <span>Cài đặt tra cứu</span>
+          </a>
+          <a routerLink="/admin/logs" routerLinkActive="active" class="menu-item" title="Nhật ký hoạt động">
+            <i class="fas fa-clipboard-list"></i>
+            <span>Nhật ký hoạt động</span>
+          </a>
+        </div>
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar">A</div>
+        <div class="user-details" *ngIf="!isSidebarCollapsed">
+          <span class="username">Quản trị viên</span>
+          <span class="user-role">ROLE_ADMIN</span>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="admin-main">
+    <header class="admin-header">
+      <div class="header-left">
+        <button class="mobile-toggle" (click)="toggleSidebar()" aria-label="Open sidebar">
+          <i class="fas fa-bars"></i>
+        </button>
+
+        <nav class="admin-breadcrumbs" aria-label="Breadcrumbs">
+          <ol class="breadcrumb-list">
+            <li *ngFor="let crumb of breadcrumbs; let last = last" class="breadcrumb-item" [class.active]="last">
+              <span *ngIf="last">{{ crumb.label }}</span>
+              <a *ngIf="!last" [routerLink]="crumb.url">{{ crumb.label }}</a>
+              <span *ngIf="!last" class="breadcrumb-separator">/</span>
+            </li>
+          </ol>
+        </nav>
+      </div>
+
+      <div class="header-right">
+        <a href="/" class="btn-back-home" title="Trở về trang bán vé">
+          <i class="fas fa-home"></i> <span>Trang bán vé</span>
+        </a>
+
+        <div class="header-action-wrapper">
+          <button class="header-action-btn" (click)="toggleNotifications()" aria-label="Xem thông báo">
+            <i class="fas fa-bell"></i>
+            <span class="notification-badge" *ngIf="unreadNotificationsCount > 0">{{ unreadNotificationsCount }}</span>
+          </button>
+
+          <div class="action-dropdown notification-dropdown" *ngIf="showNotifications">
+            <div class="dropdown-header">
+              <h3>Thông báo</h3>
+              <button class="mark-read-btn" (click)="markAllNotificationsAsRead()">Đọc tất cả</button>
+            </div>
+            <div class="dropdown-body">
+              <div *ngIf="notifications.length === 0" class="empty-dropdown">Không có thông báo.</div>
+              <div *ngFor="let notif of notifications" class="dropdown-item" [class.unread]="!notif.read">
+                <p class="notif-text">{{ notif.text }}</p>
+                <span class="notif-time">{{ notif.time }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="header-action-wrapper">
+          <div class="admin-profile-btn" (click)="toggleProfileDropdown()">
+            <span class="user-email-text">{{ adminEmail }}</span>
+            <div class="profile-avatar">A</div>
+            <i class="fas fa-angle-down profile-arrow"></i>
+          </div>
+
+          <div class="action-dropdown profile-dropdown" *ngIf="showProfileDropdown">
+            <div class="dropdown-header profile-details">
+              <strong>Tài khoản Admin</strong>
+              <span>{{ adminEmail }}</span>
+            </div>
+            <div class="dropdown-body">
+              <a href="/" class="dropdown-link">
+                <i class="fas fa-home"></i> Trang bán vé
+              </a>
+              <a routerLink="/admin/config" class="dropdown-link" (click)="showProfileDropdown = false">
+                <i class="fas fa-sliders-h"></i> Giá vé
+              </a>
+              <a routerLink="/admin/logs" class="dropdown-link" (click)="showProfileDropdown = false">
+                <i class="fas fa-history"></i> Nhật ký hoạt động
+              </a>
+              <hr class="dropdown-divider">
+              <button class="dropdown-action-btn logout-action" (click)="logout()">
+                <i class="fas fa-sign-out-alt"></i> Đăng xuất
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="admin-content">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>

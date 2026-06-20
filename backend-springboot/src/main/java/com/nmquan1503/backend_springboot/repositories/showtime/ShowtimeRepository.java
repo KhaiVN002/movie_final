@@ -15,4 +15,10 @@ public interface ShowtimeRepository extends JpaRepository<Showtime, Long>, Custo
 
     List<Showtime> findByMovieIdAndStartTimeGreaterThanEqualAndStartTimeLessThan(Long movieId, LocalDateTime from, LocalDateTime to);
 
+    org.springframework.data.domain.Page<Showtime> findByMovieTitleContainingIgnoreCase(String title, org.springframework.data.domain.Pageable pageable);
+
+    List<Showtime> findByMovieTitleContainingIgnoreCase(String title);
+
+    List<Showtime> findByMovieId(Long movieId);
+
 }

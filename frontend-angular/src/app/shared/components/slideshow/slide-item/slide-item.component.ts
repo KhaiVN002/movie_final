@@ -1,5 +1,5 @@
+import { Component, ElementRef, EventEmitter, Input, OnInit, Output, TemplateRef, ViewChild } from "@angular/core";
 import { CommonModule } from "@angular/common";
-import { Component, ElementRef, Input, OnInit, TemplateRef, ViewChild } from "@angular/core";
 import { RouterModule } from "@angular/router";
 import { BaseComponent } from "../../base/base.component";
 import { LoaderService } from "../../../../core/services/ui/loader.service";
@@ -19,6 +19,9 @@ import { LoaderService } from "../../../../core/services/ui/loader.service";
 class SlideItemComponent {
     @Input() href?: string;
     @Input() routerLink?: string | any[];
+
+    @Output() buyClick = new EventEmitter<void>();
+    @Output() detailClick = new EventEmitter<void>();
 
     constructor(
         public elementRef: ElementRef

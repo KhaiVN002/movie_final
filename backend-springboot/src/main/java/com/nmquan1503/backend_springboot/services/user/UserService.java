@@ -22,8 +22,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -113,6 +117,31 @@ public class UserService {
             user.setPassword(passwordEncoder.encode(request.getPassword()));
         }
         return userMapper.toUserDetailResponse(userRepository.save(user));
+    }
+
+    @Transactional
+    @PreAuthorize("#userId == authentication.principal")
+    public String uploadAvatar(Long userId, MultipartFile file) {
+        User user = fetchUserById(userId);
+        try {
+            String folder = "uploads/";
+            File dir = new File(folder);
+            if (!dir.exists()) dir.mkdirs();
+
+            String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
+            File dest = new File(dir.getAbsoluteFile(), fileName);
+
+            file.transferTo(dest);
+
+            String avatarUrl = "/uploads/" + fileName;
+            user.setAvatarURL(avatarUrl);
+            userRepository.save(user);
+
+            return avatarUrl;
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Upload file failed: " + e.getMessage(), e);
+        }
     }
 
     public User fetchUserById(Long userId) {

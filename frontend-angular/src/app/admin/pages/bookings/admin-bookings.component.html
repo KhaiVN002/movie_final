@@ -1,0 +1,163 @@
+<div class="bookings-container">
+  <div class="page-header">
+    <div class="header-info">
+      <h1>Theo Dõi Đặt Vé</h1>
+      <p class="subtitle">Tìm kiếm, lọc và kiểm tra vé xem phim của khách hàng và đơn mua bắp nước thời gian thực.</p>
+    </div>
+  </div>
+
+  <!-- Filter Controls -->
+  <div class="filter-card">
+    <div class="search-box">
+      <i class="fas fa-search search-icon"></i>
+      <input type="text" 
+             [(ngModel)]="searchQuery" 
+             (ngModelChange)="onSearchChange()" 
+             placeholder="Tìm theo mã, tên khách hàng, email, số điện thoại hoặc phim...">
+    </div>
+    
+    <div class="status-filters">
+      <button class="filter-btn" [class.active]="statusFilter === 'ALL'" (click)="onStatusChange('ALL')">Tất cả đặt vé</button>
+      <button class="filter-btn status-paid" [class.active]="statusFilter === 'PAID'" (click)="onStatusChange('PAID')">Đã thanh toán</button>
+      <button class="filter-btn status-pending" [class.active]="statusFilter === 'PENDING'" (click)="onStatusChange('PENDING')">Chờ thanh toán</button>
+      <button class="filter-btn status-expired" [class.active]="statusFilter === 'EXPIRED'" (click)="onStatusChange('EXPIRED')">Đã hết hạn</button>
+    </div>
+  </div>
+
+  <!-- Bookings Table -->
+  <div class="table-card">
+    <div *ngIf="filteredBookings.length === 0" class="empty-state">
+      <i class="fas fa-search-minus empty-icon"></i>
+      <p>Không tìm thấy giao dịch nào khớp với bộ lọc.</p>
+    </div>
+
+    <div class="table-responsive" *ngIf="filteredBookings.length > 0">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Mã đặt vé</th>
+            <th>Khách hàng</th>
+            <th>Phim</th>
+            <th>Ghế</th>
+            <th>Tổng tiền</th>
+            <th>Ngày đặt</th>
+            <th>Trạng thái</th>
+            <th class="actions-header">Hành động</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let booking of filteredBookings">
+            <td><code>{{ booking.id }}</code></td>
+            <td>
+              <div class="cust-info">
+                <strong>{{ booking.customerName }}</strong>
+                <span>{{ booking.customerEmail }} &bull; {{ booking.customerPhone }}</span>
+              </div>
+            </td>
+            <td>
+              <div class="movie-cell">
+                <span class="movie-title">{{ booking.movieTitle }}</span>
+                <span class="showtime-text">{{ booking.showtime }}</span>
+              </div>
+            </td>
+            <td><code>{{ booking.seats }}</code></td>
+            <td class="amount-val">{{ booking.amount | number:'1.0-0' }} đ</td>
+            <td>{{ booking.bookingDate }}</td>
+            <td>
+              <span class="status-badge" [class.badge-paid]="booking.status === 'PAID'" [class.badge-pending]="booking.status === 'PENDING'" [class.badge-expired]="booking.status === 'EXPIRED'">
+                {{ booking.status === 'PAID' ? 'Đã thanh toán' : booking.status === 'PENDING' ? 'Chờ thanh toán' : 'Hết hạn' }}
+              </span>
+            </td>
+            <td class="action-cell">
+              <button class="btn-action" (click)="openDetails(booking)" title="Xem chi tiết">
+                <i class="fas fa-eye"></i> Chi tiết
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Modal details -->
+  <div class="modal-overlay" *ngIf="showDetailModal && selectedBooking" (click)="closeModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Hóa Đơn Đặt Vé {{ selectedBooking.id }}</h2>
+        <button class="close-btn" (click)="closeModal()">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="modal-grid">
+          <!-- Left: Customer Details -->
+          <div class="info-group">
+            <h3>Thông tin khách hàng</h3>
+            <p><strong>Họ tên:</strong> {{ selectedBooking.customerName }}</p>
+            <p><strong>Email:</strong> {{ selectedBooking.customerEmail }}</p>
+            <p><strong>SĐT:</strong> {{ selectedBooking.customerPhone }}</p>
+          </div>
+
+          <!-- Right: Showtime details -->
+          <div class="info-group">
+            <h3>Chi tiết lịch chiếu</h3>
+            <p><strong>Phim:</strong> {{ selectedBooking.movieTitle }}</p>
+            <p><strong>Suất chiếu:</strong> {{ selectedBooking.showtime }}</p>
+            <p><strong>Ghế:</strong> <code>{{ selectedBooking.seats }}</code></p>
+          </div>
+        </div>
+
+        <!-- Concessions Section -->
+        <div class="concessions-section">
+          <h3>Đồ ăn & Nước uống đi kèm</h3>
+          <div *ngIf="selectedBooking.concessions.length === 0" class="no-concessions">
+            Không mua đồ ăn & nước uống đi kèm.
+          </div>
+          <table class="itemized-table" *ngIf="selectedBooking.concessions.length > 0">
+            <thead>
+              <tr>
+                <th>Sản phẩm</th>
+                <th>SL</th>
+                <th>Đơn giá</th>
+                <th>Thành tiền</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of selectedBooking.concessions">
+                <td>{{ item.name }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>{{ item.price | number:'1.0-0' }} đ</td>
+                <td>{{ item.price * item.quantity | number:'1.0-0' }} đ</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Payment Meta -->
+        <div class="payment-meta">
+          <div class="payment-row">
+            <span>Phương thức thanh toán:</span>
+            <strong>{{ selectedBooking.paymentMethod }}</strong>
+          </div>
+          <div class="payment-row">
+            <span>Thời gian đặt:</span>
+            <span>{{ selectedBooking.bookingDate }}</span>
+          </div>
+          <div class="payment-row highlight">
+            <span>Tổng số tiền:</span>
+            <strong>{{ selectedBooking.amount | number:'1.0-0' }} đ</strong>
+          </div>
+          <div class="payment-row">
+            <span>Trạng thái:</span>
+            <span class="status-badge" [class.badge-paid]="selectedBooking.status === 'PAID'" [class.badge-pending]="selectedBooking.status === 'PENDING'" [class.badge-expired]="selectedBooking.status === 'EXPIRED'">
+              {{ selectedBooking.status === 'PAID' ? 'Đã thanh toán' : selectedBooking.status === 'PENDING' ? 'Chờ thanh toán' : 'Hết hạn' }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeModal()">Đóng</button>
+      </div>
+    </div>
+  </div>
+</div>

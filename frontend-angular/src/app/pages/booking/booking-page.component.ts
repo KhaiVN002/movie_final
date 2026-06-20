@@ -5,7 +5,6 @@ import { ShowtimeDetailResponse } from "../../core/models/responses/showtime/sho
 import { ShowtimeService } from "../../core/services/showtime/showtime.service";
 import { SeatService } from "../../core/services/theater/seat.service";
 import { SeatDetailResponse } from "../../core/models/responses/theater/seat-detail-response.model";
-import { response } from "express";
 import { ShowtimeListBannerComponent } from "../showtime-list/banner/showtime-list-banner.component";
 import { InfoShowtimeComponent } from "./info/info-showtime.component";
 import { SeatPlanComponent } from "./seat-plan/seat-plan.component";

@@ -1,10 +1,8 @@
 package com.nmquan1503.backend_springboot.repositories.showtime.custom.impl;
 
-import com.nmquan1503.backend_springboot.entities.showtime.QShowtime;
 import com.nmquan1503.backend_springboot.repositories.showtime.custom.CustomShowtimeRepository;
-import com.querydsl.core.types.dsl.DateTimeExpression;
-import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import jakarta.persistence.EntityManager;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -18,33 +16,25 @@ import java.time.LocalDateTime;
 public class CustomShowtimeRepositoryImpl implements CustomShowtimeRepository {
 
     JPAQueryFactory queryFactory;
+    EntityManager entityManager;
 
     @Override
     public boolean isScheduleConflict(Integer roomId, LocalDateTime startTime, Short duration) {
-        QShowtime showtime = QShowtime.showtime;
+        String sql = """
+            SELECT COUNT(*)
+            FROM showtimes s
+            JOIN movies m ON m.id = s.movie_id
+            WHERE s.room_id = :roomId
+              AND s.start_time + (m.duration || ' minutes')::interval >= CAST(:startTime AS timestamp)
+              AND s.start_time <= CAST(:startTime AS timestamp) + (:duration || ' minutes')::interval
+            """;
 
-        DateTimeExpression<LocalDateTime> endTime = Expressions.dateTimeTemplate(
-                LocalDateTime.class,
-                "TIMESTAMPADD(MINUTE, {0}, {1})",
-                Expressions.constant(duration),
-                Expressions.constant(startTime)
-        );
+        Number count = (Number) entityManager.createNativeQuery(sql)
+                .setParameter("roomId", roomId)
+                .setParameter("startTime", startTime)
+                .setParameter("duration", duration)
+                .getSingleResult();
 
-        DateTimeExpression<LocalDateTime> endTimeExisting = Expressions.dateTimeTemplate(
-                LocalDateTime.class,
-                "TIMESTAMPADD(MINUTE, {0}, {1})",
-                showtime.movie.duration,
-                showtime.startTime
-        );
-
-        Long count = queryFactory
-                .select(showtime.count())
-                .from(showtime)
-                .where(showtime.room.id.eq(roomId)
-                        .and(endTimeExisting.goe(startTime))
-                        .and(showtime.startTime.loe(endTime)))
-                .fetchOne();
-
-        return count != null && count > 0;
+        return count != null && count.longValue() > 0;
     }
 }

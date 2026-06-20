@@ -31,6 +31,12 @@ class ReservationService {
             `${this.apiUrl}/detail/${reservationId}`
         );
     }
+
+    getMyReservations(): Observable<ApiResponse<ReservationDetailResponse[]>> {
+        return this.http.get<ApiResponse<ReservationDetailResponse[]>>(
+            `${this.apiUrl}/my`
+        );
+    }
 }
 
 export { ReservationService };
