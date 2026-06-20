@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../../../node_modules/dayjs/plugin/isSameOrAfter.js"],
+  "sourcesContent": ["!function (e, t) {\n  \"object\" == typeof exports && \"undefined\" != typeof module ? module.exports = t() : \"function\" == typeof define && define.amd ? define(t) : (e = \"undefined\" != typeof globalThis ? globalThis : e || self).dayjs_plugin_isSameOrAfter = t();\n}(this, function () {\n  \"use strict\";\n\n  return function (e, t) {\n    t.prototype.isSameOrAfter = function (e, t) {\n      return this.isSame(e, t) || this.isAfter(e, t);\n    };\n  };\n});"],
+  "mappings": ";;;;;;AAAA;AAAA;AAAA,MAAC,SAAU,GAAG,GAAG;AACf,kBAAY,OAAO,WAAW,eAAe,OAAO,SAAS,OAAO,UAAU,EAAE,IAAI,cAAc,OAAO,UAAU,OAAO,MAAM,OAAO,CAAC,KAAK,IAAI,eAAe,OAAO,aAAa,aAAa,KAAK,MAAM,6BAA6B,EAAE;AAAA,IAC7O,GAAE,SAAM,WAAY;AAClB;AAEA,aAAO,SAAU,GAAG,GAAG;AACrB,UAAE,UAAU,gBAAgB,SAAUA,IAAGC,IAAG;AAC1C,iBAAO,KAAK,OAAOD,IAAGC,EAAC,KAAK,KAAK,QAAQD,IAAGC,EAAC;AAAA,QAC/C;AAAA,MACF;AAAA,IACF,CAAC;AAAA;AAAA;",
+  "names": ["e", "t"]
+}
