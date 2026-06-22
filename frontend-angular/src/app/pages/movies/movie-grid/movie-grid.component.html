@@ -5,9 +5,27 @@
             <div class="option" [class.active]="movieStatus === 'now_showing'" (click)="changeMovieStatus('now_showing')">Phim đang chiếu</div>
             <div class="option" [class.active]="movieStatus === 'coming_soon'" (click)="changeMovieStatus('coming_soon')">Phim sắp chiếu</div>
         </div>
+        <div class="movie-search">
+            <i class="fas fa-search" aria-hidden="true"></i>
+            <input
+                type="search"
+                [(ngModel)]="searchQuery"
+                placeholder="Tìm theo tên phim hoặc thể loại..."
+                aria-label="Tìm kiếm phim"
+            />
+            <button
+                *ngIf="searchQuery"
+                type="button"
+                class="clear-search"
+                (click)="clearSearch()"
+                aria-label="Xóa nội dung tìm kiếm"
+            >
+                ×
+            </button>
+        </div>
         <div class="grid">
             <a 
-                *ngFor="let movie of movies" 
+                *ngFor="let movie of filteredMovies"
                 class="movie-item" 
                 [routerLink]="['/movies/detail', movie.id]"
             >
@@ -32,8 +50,12 @@
                 </div>
             </a>
         </div>
+        <div class="empty-state" *ngIf="!isLoading && filteredMovies.length === 0">
+            <h3>{{ searchQuery ? 'Không tìm thấy phim phù hợp' : 'Chưa có phim trong danh mục này' }}</h3>
+            <p>{{ searchQuery ? 'Thử một tên phim hoặc thể loại khác.' : 'Hãy thử quay lại mục tất cả phim hoặc kiểm tra lại sau.' }}</p>
+        </div>
         <div class="loading-section">
-            <div *ngIf="!isLoading && !isLastPage" class="loading-button" (click)="loadMovies()">Tải thêm</div>
+            <div *ngIf="!isLoading && !isLastPage && movies.length > 0" class="loading-button" (click)="loadMovies()">Tải thêm</div>
             <div *ngIf="isLoading" class="loading-icon">
                 <div class="point first"></div>
                 <div class="point second"></div>

@@ -40,7 +40,8 @@ public class SecurityConfig {
 
     static String[] PUBLIC_POST_ENDPOINTS = {
             "/users",
-            "/auth/**"
+            "/auth/**",
+            "/support-requests"
     };
 
     JwtFilter jwtFilter;

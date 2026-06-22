@@ -13,6 +13,7 @@ import { AuthGuard } from './core/guards/auth.guard';
 import { BookingPageComponent } from './pages/booking/booking-page.component';
 import { CheckoutPageComponent } from './pages/checkout/checkout-page.component';
 import { PaymentResultPageComponent } from './pages/payment-result/payment-result-page.component';
+import { MyTicketsPageComponent } from './pages/my-tickets/my-tickets-page.component';
 
 import { AdminGuard } from './admin/guards/admin.guard';
 
@@ -31,6 +32,7 @@ export const routes: Routes = [
             { path: "movies/detail/:id", component: MovieDetailPageComponent},
             { path: "movies/:id/showtimes", component: ShowtimeListPageComponent},
             { path: "profile", component: ProfilePageComponent, canActivate: [AuthGuard] },
+            { path: "my-tickets", component: MyTicketsPageComponent, canActivate: [AuthGuard] },
             { path: "booking/:id", component: BookingPageComponent, canActivate: [AuthGuard]},
             { path: "checkout/:reservationId", component: CheckoutPageComponent, canActivate: [AuthGuard]},
             { path: "payment-result", component: PaymentResultPageComponent }

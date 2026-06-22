@@ -75,6 +75,15 @@ public class MovieService {
         return convertToPageItem(movieRepository.findAllSortByFinalScore(pageable));
     }
 
+    public Page<MovieListItemResponse> searchMovieCatalog(
+            String query,
+            Byte categoryId,
+            Pageable pageable
+    ) {
+        String normalizedQuery = query == null ? "" : query.trim();
+        return convertToPageItem(movieRepository.searchCatalog(normalizedQuery, categoryId, pageable));
+    }
+
     public Page<MovieListItemResponse> getNowShowingMovieListItems(Pageable pageable) {
         return convertToPageItem(movieRepository.findNowShowingSortByFinalScore(pageable));
     }

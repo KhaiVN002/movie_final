@@ -1,9 +1,10 @@
 import { Component, OnInit } from "@angular/core";
 import { MovieListItemResponse } from "../../../core/models/responses/movie/movie-list-item-response.model";
-import { ActivatedRoute, RouterModule } from "@angular/router";
+import { ActivatedRoute, Router, RouterModule } from "@angular/router";
 import { MovieService } from "../../../core/services/movie/movie.service";
 import { PageRequest } from "../../../core/models/requests/page-request.model";
 import { CommonModule } from "@angular/common";
+import { FormsModule } from "@angular/forms";
 import dayjs from "dayjs";
 import { finalize } from "rxjs";
 
@@ -16,6 +17,7 @@ import { finalize } from "rxjs";
     ],
     imports: [
         CommonModule,
+        FormsModule,
         RouterModule
     ]
 })
@@ -23,6 +25,7 @@ export class MovieGridComponent implements OnInit {
     movieStatus: 'all' | 'now_showing' | 'coming_soon' = 'all';
 
     movies: MovieListItemResponse[] = []
+    searchQuery: string = '';
     
     dayjs = dayjs;
 
@@ -36,32 +39,65 @@ export class MovieGridComponent implements OnInit {
 
     constructor(
         private route: ActivatedRoute,
+        private router: Router,
         private movieService: MovieService
     ) { }
 
     ngOnInit(): void {
         this.route.queryParams.subscribe(params => {
             const status = params['status'];
-            if (status) {
-                this.movieStatus = status;
-            }
+            this.movieStatus = ['now_showing', 'coming_soon'].includes(status)
+                ? status
+                : 'all';
             this.resetPaging();
             this.loadMovies();
         })
     }
 
     changeMovieStatus(status: 'all' | 'now_showing' | 'coming_soon'): void {
-        if (this.movieStatus !== status) {
-            this.movieStatus = status;
-            this.resetPaging();
-            this.loadMovies();
-        }
+        if (this.movieStatus === status) return;
+
+        this.router.navigate([], {
+            relativeTo: this.route,
+            queryParams: {
+                status: status === 'all' ? null : status
+            },
+            queryParamsHandling: 'merge'
+        });
     }
 
     resetPaging(): void {
         this.pageable.page = 0;
         this.movies = [];
         this.isLastPage = false;
+    }
+
+    get filteredMovies(): MovieListItemResponse[] {
+        const query = this.normalizeSearchText(this.searchQuery);
+        if (!query) return this.movies;
+
+        return this.movies.filter(movie => {
+            const title = this.normalizeSearchText(movie.title);
+            const categories = this.normalizeSearchText(
+                movie.categories?.map(category => category.name).join(' ') || ''
+            );
+
+            return title.includes(query) || categories.includes(query);
+        });
+    }
+
+    clearSearch(): void {
+        this.searchQuery = '';
+    }
+
+    private normalizeSearchText(value: string): string {
+        return value
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .replace(/đ/g, 'd')
+            .replace(/Đ/g, 'D')
+            .toLowerCase()
+            .trim();
     }
 
 loadMovies(): void {
@@ -99,12 +135,13 @@ loadMovies(): void {
         },
         error: (err) => {
             console.error('error:', err);
+            this.isLastPage = true;
         }
     });
 }
 
     getCategoriesString(movie: MovieListItemResponse): string {
-        return movie.categories.map(cat => cat.name).join(', ');
+        return movie.categories?.map(cat => cat.name).join(', ') || 'Đang cập nhật';
     }
 
 }

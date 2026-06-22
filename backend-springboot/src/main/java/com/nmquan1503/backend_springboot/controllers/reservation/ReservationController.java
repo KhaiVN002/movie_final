@@ -4,6 +4,7 @@ import com.nmquan1503.backend_springboot.dtos.requests.reservation.ReservationCr
 import com.nmquan1503.backend_springboot.dtos.responses.ApiResponse;
 import com.nmquan1503.backend_springboot.dtos.responses.reservation.ReservationDetailResponse;
 import com.nmquan1503.backend_springboot.services.reservation.ReservationService;
+import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -20,7 +21,7 @@ public class ReservationController {
 
     @PostMapping
     ResponseEntity<ApiResponse<Long>> createReservation(
-            @RequestBody ReservationCreationRequest request
+            @Valid @RequestBody ReservationCreationRequest request
     ) {
         ApiResponse<Long> response = ApiResponse.success(
                 reservationService.createReservation(request)

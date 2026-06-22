@@ -8,6 +8,8 @@ import java.util.List;
 
 public interface TicketRepository extends JpaRepository<Ticket, Long> {
 
+    boolean existsByReservationId(Long reservationId);
+
     List<Ticket> findByReservationShowtimeMovieId(Long movieId);
 
     List<Ticket> findByReservationShowtimeMovieIdAndReservationStartTimeGreaterThanEqualAndReservationStartTimeLessThan(

@@ -41,6 +41,9 @@ public class TicketService {
     ProductMapper productMapper;
 
     public void createTicket(Reservation reservation) {
+        if (ticketRepository.existsByReservationId(reservation.getId())) {
+            return;
+        }
         Ticket ticket = Ticket.builder()
                 .reservation(reservation)
                 .status(ticketStatusService.fetchByName("ISSUED"))

@@ -2,9 +2,7 @@ package com.nmquan1503.backend_springboot.services.reservation;
 
 import com.nmquan1503.backend_springboot.dtos.requests.product.ProductOrderRequest;
 import com.nmquan1503.backend_springboot.dtos.requests.reservation.ReservationCreationRequest;
-import com.nmquan1503.backend_springboot.dtos.responses.product.ProductReservationItemResponse;
 import com.nmquan1503.backend_springboot.dtos.responses.reservation.ReservationDetailResponse;
-import com.nmquan1503.backend_springboot.entities.product.Product;
 import com.nmquan1503.backend_springboot.entities.reservation.Reservation;
 import com.nmquan1503.backend_springboot.entities.reservation.ReservationProduct;
 import com.nmquan1503.backend_springboot.entities.showtime.Showtime;
@@ -12,36 +10,36 @@ import com.nmquan1503.backend_springboot.entities.theater.Seat;
 import com.nmquan1503.backend_springboot.entities.user.User;
 import com.nmquan1503.backend_springboot.exceptions.GeneralException;
 import com.nmquan1503.backend_springboot.exceptions.ResponseCode;
-import com.nmquan1503.backend_springboot.mappers.product.ProductMapper;
 import com.nmquan1503.backend_springboot.mappers.reservation.ReservationMapper;
 import com.nmquan1503.backend_springboot.mappers.reservation.ReservationProductMapper;
 import com.nmquan1503.backend_springboot.mappers.theater.SeatMapper;
 import com.nmquan1503.backend_springboot.repositories.reservation.ReservationRepository;
 import com.nmquan1503.backend_springboot.services.authentication.AuthenticationService;
 import com.nmquan1503.backend_springboot.services.product.BranchProductService;
-import com.nmquan1503.backend_springboot.services.product.ProductService;
 import com.nmquan1503.backend_springboot.services.showtime.ShowtimeService;
 import com.nmquan1503.backend_springboot.services.theater.SeatService;
 import com.nmquan1503.backend_springboot.services.ticket.TicketPriceService;
-import jakarta.persistence.EntityManager;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Queue;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ReservationService {
+
+    static final long REDIS_LOCK_TTL_SECONDS = 30;
 
     ReservationRepository reservationRepository;
 
@@ -49,133 +47,131 @@ public class ReservationService {
     AuthenticationService authenticationService;
     ReservationStatusService reservationStatusService;
     SeatService seatService;
+    SeatHoldService seatHoldService;
     ReservationSeatService reservationSeatService;
-    ProductService productService;
     ReservationProductService reservationProductService;
     TicketPriceService ticketPriceService;
     BranchProductService branchProductService;
 
     ReservationMapper reservationMapper;
     SeatMapper seatMapper;
-    ProductMapper productMapper;
     ReservationProductMapper reservationProductMapper;
 
-    EntityManager entityManager;
-
-    static Integer count = 0;
-
-    ConcurrentHashMap<Integer, ReentrantLock> locks = new ConcurrentHashMap<>();
-
-    private int hash(Long showtimeId) {
-        showtimeId = (showtimeId ^ (showtimeId >>> 30)) * 0xbf58476d1ce4e5b9L;
-        showtimeId = (showtimeId ^ (showtimeId >>> 27)) * 0x94d049bb133111ebL;
-        showtimeId = showtimeId ^ (showtimeId >>> 31);
-        return (int)(showtimeId % 50);
-    }
-
-    public Long createReservation(ReservationCreationRequest request) {
-        int index = hash(request.getShowtimeId());
-        ReentrantLock lock = locks.computeIfAbsent(index, id -> new ReentrantLock());
-
-        lock.lock();
-
-        try {
-            System.out.println("Start:"+ count);
-            count +=1;
-
-            return processCreateReservation(request);
-        }
-        finally {
-            System.out.println("Count:"+count);
-            lock.unlock();
-        }
-    }
-
     @Transactional
-    private Long processCreateReservation(ReservationCreationRequest request) {
-        Long userId = authenticationService.getCurrentUserId();
-//            Long userId = (long)3;
+    public Long createReservation(ReservationCreationRequest request) {
+        List<Long> seatIds = request.getSeatIds().stream().distinct().sorted().toList();
+        if (seatIds.size() != request.getSeatIds().size()) {
+            throw new GeneralException(ResponseCode.DUPLICATE_SEAT);
+        }
 
+        String redisOwnerToken = UUID.randomUUID().toString();
+        try {
+            boolean redisLockAcquired = seatService.tryLockSeats(
+                    request.getShowtimeId(),
+                    seatIds,
+                    redisOwnerToken,
+                    REDIS_LOCK_TTL_SECONDS
+            );
+            if (!redisLockAcquired) {
+                throw new GeneralException(ResponseCode.SEAT_NOT_AVAILABLE);
+            }
+            releaseRedisLockAfterTransaction(request.getShowtimeId(), seatIds, redisOwnerToken);
+        } catch (GeneralException exception) {
+            throw exception;
+        } catch (RuntimeException redisException) {
+            // PostgreSQL's unique seat hold remains the source of truth if Redis is unavailable.
+            log.warn("Redis seat lock unavailable for showtime {}. Falling back to database lock.",
+                    request.getShowtimeId());
+            log.debug("Redis seat lock failure", redisException);
+        }
+
+        return createReservationInDatabase(request, seatIds);
+    }
+
+    private void releaseRedisLockAfterTransaction(
+            Long showtimeId,
+            List<Long> seatIds,
+            String ownerToken
+    ) {
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCompletion(int status) {
+                try {
+                    seatService.unlockSeats(showtimeId, seatIds, ownerToken);
+                } catch (RuntimeException redisException) {
+                    log.warn("Could not release Redis seat lock for showtime {}. It will expire automatically.",
+                            showtimeId);
+                    log.debug("Redis seat unlock failure", redisException);
+                }
+            }
+        });
+    }
+
+    private Long createReservationInDatabase(ReservationCreationRequest request, List<Long> seatIds) {
+        Long userId = authenticationService.getCurrentUserId();
         Showtime showtime = showtimeService.fetchById(request.getShowtimeId());
-        if (!showtime.getStatus().getName().equals("AVAILABLE")) {
+        if (!"AVAILABLE".equals(showtime.getStatus().getName())) {
             throw new GeneralException(ResponseCode.SHOWTIME_NOT_AVAILABLE);
         }
 
-        List<Seat> seats = seatService.fetchByIds(request.getSeatIds());
-        Set<Long> lockedSeatIds = seatService.getLockedSeatsByShowtimeId(request.getShowtimeId());
+        List<Seat> seats = seatService.fetchByIds(seatIds);
         for (Seat seat : seats) {
             if (!seat.getRoom().getId().equals(showtime.getRoom().getId())) {
                 throw new GeneralException(ResponseCode.SEAT_NOT_FOUND);
             }
-            if (lockedSeatIds.contains(seat.getId())) {
-                throw new GeneralException(ResponseCode.SEAT_NOT_AVAILABLE);
-            }
         }
-//        if (!seatService.lockListSeats(request.getShowtimeId(), request.getSeatIds(), userId)) {
-//            throw new GeneralException(ResponseCode.SEAT_NOT_AVAILABLE);
-//        }
 
+        LocalDateTime startTime = LocalDateTime.now();
+        LocalDateTime endTime = startTime.plusMinutes(5);
         Reservation reservation = Reservation.builder()
-                .showtime(showtimeService.fetchById(request.getShowtimeId()))
+                .showtime(showtime)
                 .user(User.builder().id(userId).build())
-                .startTime(LocalDateTime.now())
-                .endTime(LocalDateTime.now().plusMinutes(5))
+                .startTime(startTime)
+                .endTime(endTime)
                 .status(reservationStatusService.fetchByName("PENDING"))
                 .build();
-        reservation = reservationRepository.save(reservation);
+        reservation = reservationRepository.saveAndFlush(reservation);
 
+        // Atomic PostgreSQL upserts make this safe across backend instances.
+        seatHoldService.claimSeats(showtime.getId(), reservation.getId(), seatIds, endTime);
         reservationSeatService.save(reservation, seats);
-//
-//        ReservationDetailResponse response = reservationMapper.toReservationDetailResponse(reservation);
-//        response.setSeats(seatMapper.toListSeatDetailResponse(seats));
-//
-//        response.setTicketPrice(ticketPriceService.getTotalTicketPrice(reservation));
 
-        if (request.getProductOrders() != null) {
-            List<Byte> productIds = request.getProductOrders().stream().map(
-                    ProductOrderRequest::getProductId
-            ).toList();
-//            List<Product> products = productService.fetchByIds(productIds);
+        if (request.getProductOrders() != null && !request.getProductOrders().isEmpty()) {
+            List<Byte> productIds = request.getProductOrders().stream()
+                    .map(ProductOrderRequest::getProductId)
+                    .toList();
             if (!branchProductService.existsByBranchIdAndProductIds(
                     showtime.getRoom().getBranch().getId(),
                     productIds
             )) {
                 throw new GeneralException(ResponseCode.PRODUCT_NOT_FOUND);
             }
-
             reservationProductService.save(reservation, request.getProductOrders());
-//
-//            List<ProductReservationItemResponse> items = new ArrayList<>();
-//            for (Product product : products) {
-//                for (ProductOrderRequest productOrder : request.getProductOrders()) {
-//                    if (product.getId().equals(productOrder.getProductId())) {
-//                        items.add(ProductReservationItemResponse.builder()
-//                                .product(productMapper.toProductCheckoutResponse(product))
-//                                .quantity(productOrder.getQuantity())
-//                                .build()
-//                        );
-//                    }
-//                }
-//            }
-//            response.setItems(items);
         }
 
         return reservation.getId();
     }
 
+    @Transactional
     public Reservation fetchById(Long reservationId) {
-        Reservation reservation = reservationRepository.findById(reservationId)
+        Reservation reservation = reservationRepository.findByIdForUpdate(reservationId)
                 .orElseThrow(() -> new GeneralException(ResponseCode.RESERVATION_NOT_FOUND));
-        if (reservation.getEndTime().isBefore(LocalDateTime.now()) && reservation.getStatus().getName().equals("PENDING")) {
-            reservation.setStatus(reservationStatusService.fetchByName("EXPIRED"));
-            reservation = reservationRepository.save(reservation);
-        }
+        expireIfNeeded(reservation);
+        return reservation;
+    }
+
+    @Transactional
+    public Reservation fetchByIdForUpdate(Long reservationId) {
+        Reservation reservation = reservationRepository.findByIdForUpdate(reservationId)
+                .orElseThrow(() -> new GeneralException(ResponseCode.RESERVATION_NOT_FOUND));
+        expireIfNeeded(reservation);
         return reservation;
     }
 
     public double getTotalAmountByReservation(Reservation reservation) {
         double total = ticketPriceService.getTotalTicketPrice(reservation);
-        List<ReservationProduct> reservationProducts = reservationProductService.fetchByReservationId(reservation.getId());
+        List<ReservationProduct> reservationProducts =
+                reservationProductService.fetchByReservationId(reservation.getId());
         for (ReservationProduct reservationProduct : reservationProducts) {
             total += reservationProduct.getQuantity() * reservationProduct.getProduct().getPrice();
         }
@@ -185,40 +181,61 @@ public class ReservationService {
     public void markReservationAsPaid(Reservation reservation) {
         reservation.setStatus(reservationStatusService.fetchByName("PAID"));
         reservationRepository.save(reservation);
+        seatHoldService.markReservationAsBooked(reservation.getId());
     }
 
+    @Transactional
     public ReservationDetailResponse getReservationDetail(Long reservationId) {
         Long userId = authenticationService.getCurrentUserId();
-        Reservation reservation = reservationRepository.findByIdAndUserId(reservationId, userId)
+        Reservation reservation = reservationRepository.findByIdForUpdate(reservationId)
+                .filter(item -> item.getUser().getId().equals(userId))
                 .orElseThrow(() -> new GeneralException(ResponseCode.RESERVATION_NOT_FOUND));
+        expireIfNeeded(reservation);
+
         ReservationDetailResponse response = reservationMapper.toReservationDetailResponse(reservation);
         List<Seat> seats = seatService.fetchSeatsByReservationId(reservationId);
         response.setSeats(seatMapper.toListSeatDetailResponse(seats));
-        List<ReservationProduct> reservationProducts = reservationProductService.fetchByReservationId(reservationId);
+        List<ReservationProduct> reservationProducts =
+                reservationProductService.fetchByReservationId(reservationId);
         response.setItems(reservationProductMapper.toListProductReservationItemResponse(reservationProducts));
         response.setTicketPrice(ticketPriceService.getTotalTicketPrice(reservation));
         return response;
     }
 
+    @Transactional
     public List<ReservationDetailResponse> getMyReservations() {
         Long userId = authenticationService.getCurrentUserId();
         List<Reservation> reservations = reservationRepository.findByUserIdOrderByStartTimeDesc(userId);
         List<ReservationDetailResponse> responses = new ArrayList<>();
         for (Reservation reservation : reservations) {
-            // Check expiry for pending reservations
-            if (reservation.getEndTime().isBefore(LocalDateTime.now()) && reservation.getStatus().getName().equals("PENDING")) {
-                reservation.setStatus(reservationStatusService.fetchByName("EXPIRED"));
-                reservationRepository.save(reservation);
+            if (isExpiredPendingReservation(reservation)) {
+                reservation = reservationRepository.findByIdForUpdate(reservation.getId())
+                        .orElseThrow(() -> new GeneralException(ResponseCode.RESERVATION_NOT_FOUND));
             }
-            ReservationDetailResponse resDto = reservationMapper.toReservationDetailResponse(reservation);
+            expireIfNeeded(reservation);
+
+            ReservationDetailResponse response = reservationMapper.toReservationDetailResponse(reservation);
             List<Seat> seats = seatService.fetchSeatsByReservationId(reservation.getId());
-            resDto.setSeats(seatMapper.toListSeatDetailResponse(seats));
-            List<ReservationProduct> reservationProducts = reservationProductService.fetchByReservationId(reservation.getId());
-            resDto.setItems(reservationProductMapper.toListProductReservationItemResponse(reservationProducts));
-            resDto.setTicketPrice(ticketPriceService.getTotalTicketPrice(reservation));
-            responses.add(resDto);
+            response.setSeats(seatMapper.toListSeatDetailResponse(seats));
+            List<ReservationProduct> reservationProducts =
+                    reservationProductService.fetchByReservationId(reservation.getId());
+            response.setItems(reservationProductMapper.toListProductReservationItemResponse(reservationProducts));
+            response.setTicketPrice(ticketPriceService.getTotalTicketPrice(reservation));
+            responses.add(response);
         }
         return responses;
     }
 
+    private void expireIfNeeded(Reservation reservation) {
+        if (isExpiredPendingReservation(reservation)) {
+            reservation.setStatus(reservationStatusService.fetchByName("EXPIRED"));
+            reservationRepository.save(reservation);
+            seatHoldService.releaseReservation(reservation.getId());
+        }
+    }
+
+    private boolean isExpiredPendingReservation(Reservation reservation) {
+        return "PENDING".equals(reservation.getStatus().getName())
+                && !reservation.getEndTime().isAfter(LocalDateTime.now());
+    }
 }

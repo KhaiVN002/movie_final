@@ -110,11 +110,28 @@
     text-transform: uppercase;
     color: white;
     background: linear-gradient(to right, #ff4e50, #1e90ff);
+    border: 0;
+    font: inherit;
+
+    &:disabled {
+        cursor: wait;
+        opacity: 0.75;
+    }
 }
 
 .support-note {
     color: whitesmoke;
     position: relative;
+}
+
+.support-feedback {
+    position: relative;
+    color: #9fffd8;
+    font-weight: 600;
+
+    &.error {
+        color: #ffd0d0;
+    }
 }
 
 .policy {

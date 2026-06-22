@@ -1,9 +1,9 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnDestroy, OnInit } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { RouterModule, Router } from "@angular/router";
+import { Subject, catchError, debounceTime, finalize, of, startWith, switchMap, takeUntil } from "rxjs";
 import { HomeBannerComponent } from "./banner/banner.component";
-import { SearchBar } from "../../shared/components/search-bar/search-bar.component";
 import { MovieSlideshowComponent } from "./movie-slideshow/movie-slideshow.component";
 import { PromoSliderComponent } from "./promo-slider/promo-slider.component";
 import { MovieService } from "../../core/services/movie/movie.service";
@@ -19,26 +19,27 @@ import { MovieListItemResponse } from "../../core/models/responses/movie/movie-l
         FormsModule,
         RouterModule,
         HomeBannerComponent,
-        SearchBar,
         MovieSlideshowComponent,
         PromoSliderComponent
     ],
 })
-export class HomePageComponent implements OnInit {
-    allMovies: MovieListItemResponse[] = [];
+export class HomePageComponent implements OnInit, OnDestroy {
     filteredMovies: MovieListItemResponse[] = [];
-    searchQuery: string = '';
+    searchQuery = '';
     selectedCategoryId: number | null = null;
-    isLoading: boolean = false;
+    isLoading = false;
+
+    private readonly searchChanges = new Subject<void>();
+    private readonly destroy$ = new Subject<void>();
 
     categories = [
-        { id: 1, name: 'Hành động' },
+        { id: 6, name: 'Hành động' },
         { id: 2, name: 'Hài hước' },
-        { id: 3, name: 'Tâm lý' },
-        { id: 4, name: 'Kinh dị' },
-        { id: 5, name: 'Tình cảm' },
-        { id: 6, name: 'Viễn tưởng' },
-        { id: 7, name: 'Giật gân' }
+        { id: 7, name: 'Chính kịch' },
+        { id: 10, name: 'Kinh dị' },
+        { id: 14, name: 'Lãng mạn' },
+        { id: 3, name: 'Viễn tưởng' },
+        { id: 9, name: 'Gây cấn' }
     ];
 
     constructor(
@@ -47,48 +48,49 @@ export class HomePageComponent implements OnInit {
     ) {}
 
     ngOnInit(): void {
-        this.loadMovies();
-    }
-
-    loadMovies(): void {
-        this.isLoading = true;
-        this.movieService.getMovieListItems({ page: 0, size: 100 }).subscribe({
-            next: (res) => {
-                if (res.success && res.data) {
-                    this.allMovies = res.data.content || [];
-                    this.filterMovies();
-                }
-                this.isLoading = false;
-            },
-            error: (err) => {
-                console.error("Lỗi khi tải danh sách phim ở trang chủ:", err);
-                this.isLoading = false;
-            }
+        this.searchChanges.pipe(
+            startWith(undefined),
+            debounceTime(250),
+            switchMap(() => {
+                this.isLoading = true;
+                return this.movieService.searchMovieCatalog(
+                    { page: 0, size: 24 },
+                    this.searchQuery,
+                    this.selectedCategoryId
+                ).pipe(
+                    catchError(error => {
+                        console.error('Lỗi khi tìm kiếm phim:', error);
+                        return of(null);
+                    }),
+                    finalize(() => this.isLoading = false)
+                );
+            }),
+            takeUntil(this.destroy$)
+        ).subscribe(response => {
+            this.filteredMovies = response?.success && response.data
+                ? response.data.content
+                : [];
         });
     }
 
+    ngOnDestroy(): void {
+        this.destroy$.next();
+        this.destroy$.complete();
+    }
+
     onSearchChange(): void {
-        this.filterMovies();
+        this.searchChanges.next();
     }
 
     selectCategory(categoryId: number | null): void {
         this.selectedCategoryId = categoryId;
-        this.filterMovies();
-    }
-
-    filterMovies(): void {
-        const query = this.searchQuery.trim().toLowerCase();
-        this.filteredMovies = this.allMovies.filter(movie => {
-            const matchTitle = !query || movie.title.toLowerCase().includes(query);
-            const matchCategory = !this.selectedCategoryId || 
-                (movie.categories && movie.categories.some(c => c.id === this.selectedCategoryId));
-            return matchTitle && matchCategory;
-        });
+        this.searchChanges.next();
     }
 
     getCategoriesString(movie: MovieListItemResponse): string {
-        if (!movie.categories || movie.categories.length === 0) return 'Khác';
-        return movie.categories.map(cat => cat.name).join(', ');
+        return movie.categories?.length
+            ? movie.categories.map(category => category.name).join(', ')
+            : 'Khác';
     }
 
     navigateToDetail(movieId: number): void {

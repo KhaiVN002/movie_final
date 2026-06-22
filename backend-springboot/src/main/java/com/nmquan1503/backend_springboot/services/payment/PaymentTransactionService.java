@@ -42,9 +42,10 @@ public class PaymentTransactionService {
         paymentTransactionRepository.save(paymentTransaction);
     }
 
+    @Transactional
     public PaymentRedirectResponse processPayment(HttpServletRequest httpServletRequest, PaymentTransactionCreationRequest request) {
         Long userId = authenticationService.getCurrentUserId();
-        Reservation reservation = reservationService.fetchById(request.getReservationId());
+        Reservation reservation = reservationService.fetchByIdForUpdate(request.getReservationId());
         if (!reservation.getUser().getId().equals(userId)) {
             throw new GeneralException(ResponseCode.UNAUTHORIZED);
         }
@@ -82,14 +83,32 @@ public class PaymentTransactionService {
         }
         PaymentTransaction paymentTransaction = paymentTransactionRepository.findByTransactionId(result.getTransactionId())
                 .orElseThrow(() -> new GeneralException(ResponseCode.PAYMENT_TRANSACTION_NOT_FOUND));
+        Reservation reservation = reservationService.fetchByIdForUpdate(
+                paymentTransaction.getReservation().getId()
+        );
+
         if (paymentTransaction.getStatus().getName().equals("SUCCESS")) {
-            // throw new GeneralException(ResponseCode.PAYMENT_TRANSACTION_PAID);
-            return true;
+            if ("PENDING".equals(reservation.getStatus().getName())
+                    && reservation.getEndTime().isAfter(LocalDateTime.now())) {
+                reservationService.markReservationAsPaid(reservation);
+            }
+            if ("PAID".equals(reservation.getStatus().getName())) {
+                reservationService.markReservationAsPaid(reservation);
+                ticketService.createTicket(reservation);
+                return true;
+            }
+            return false;
         }
+
+        if (!"PENDING".equals(reservation.getStatus().getName())
+                || !reservation.getEndTime().isAfter(LocalDateTime.now())) {
+            return false;
+        }
+
         paymentTransaction.setStatus(paymentTransactionStatusService.fetchByName("SUCCESS"));
         paymentTransactionRepository.save(paymentTransaction);
-        reservationService.markReservationAsPaid(paymentTransaction.getReservation());
-        ticketService.createTicket(paymentTransaction.getReservation());
+        reservationService.markReservationAsPaid(reservation);
+        ticketService.createTicket(reservation);
         return true;
     }
 }

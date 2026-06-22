@@ -122,6 +122,11 @@
             <i class="fas fa-clipboard-list"></i>
             <span>Nhật ký hoạt động</span>
           </a>
+          <a routerLink="/admin/support" routerLinkActive="active" class="menu-item" title="Yêu cầu hỗ trợ">
+            <i class="fas fa-headset"></i>
+            <span>Yêu cầu hỗ trợ</span>
+            <span class="menu-badge" *ngIf="unreadNotificationsCount > 0">{{ unreadNotificationsCount }}</span>
+          </a>
         </div>
       </div>
     </nav>
@@ -156,7 +161,7 @@
       </div>
 
       <div class="header-right">
-        <a href="/" class="btn-back-home" title="Trở về trang bán vé">
+        <a routerLink="/home" class="btn-back-home" title="Trở về trang bán vé">
           <i class="fas fa-home"></i> <span>Trang bán vé</span>
         </a>
 
@@ -173,7 +178,12 @@
             </div>
             <div class="dropdown-body">
               <div *ngIf="notifications.length === 0" class="empty-dropdown">Không có thông báo.</div>
-              <div *ngFor="let notif of notifications" class="dropdown-item" [class.unread]="!notif.read">
+              <div
+                *ngFor="let notif of notifications"
+                class="dropdown-item"
+                [class.unread]="!notif.read"
+                (click)="openSupportRequest(notif)"
+              >
                 <p class="notif-text">{{ notif.text }}</p>
                 <span class="notif-time">{{ notif.time }}</span>
               </div>
@@ -194,7 +204,7 @@
               <span>{{ adminEmail }}</span>
             </div>
             <div class="dropdown-body">
-              <a href="/" class="dropdown-link">
+              <a routerLink="/home" class="dropdown-link" (click)="showProfileDropdown = false">
                 <i class="fas fa-home"></i> Trang bán vé
               </a>
               <a routerLink="/admin/config" class="dropdown-link" (click)="showProfileDropdown = false">

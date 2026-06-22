@@ -1,0 +1,75 @@
+<section class="my-tickets-page">
+  <div class="page-container">
+    <div class="page-heading">
+      <span class="eyebrow">CGV MEMBER</span>
+      <h1>Vé của tôi</h1>
+      <p>Toàn bộ vé đã thanh toán của bạn được lưu tại đây.</p>
+    </div>
+
+    <div class="loading-state" *ngIf="isLoading">
+      <i class="fas fa-spinner fa-spin"></i>
+      <span>Đang tải vé của bạn...</span>
+    </div>
+
+    <div class="error-state" *ngIf="!isLoading && hasError">
+      <i class="fas fa-exclamation-circle"></i>
+      <h2>Không thể tải danh sách vé</h2>
+      <button type="button" (click)="loadTickets()">Thử lại</button>
+    </div>
+
+    <div class="empty-state" *ngIf="!isLoading && !hasError && tickets.length === 0">
+      <i class="fas fa-ticket-alt"></i>
+      <h2>Bạn chưa có vé đã thanh toán</h2>
+      <p>Chọn một bộ phim yêu thích và đặt vé ngay nhé.</p>
+      <a routerLink="/movies">Chọn phim</a>
+    </div>
+
+    <div class="ticket-list" *ngIf="!isLoading && !hasError && tickets.length > 0">
+      <article class="ticket-card" *ngFor="let ticket of tickets">
+        <div class="ticket-stub">
+          <span class="ticket-label">E-TICKET</span>
+          <strong>#{{ ticket.id }}</strong>
+          <span class="show-status" [class.used]="!isUpcoming(ticket)">
+            {{ isUpcoming(ticket) ? 'Sắp chiếu' : 'Đã chiếu' }}
+          </span>
+        </div>
+
+        <div class="ticket-content">
+          <div class="ticket-main">
+            <div>
+              <span class="field-label">Phim</span>
+              <h2>{{ ticket.showtime.movie.title }}</h2>
+            </div>
+            <a class="movie-link" [routerLink]="['/movies/detail', ticket.showtime.movie.id]">Xem phim</a>
+          </div>
+
+          <div class="ticket-grid">
+            <div>
+              <span class="field-label">Suất chiếu</span>
+              <strong>{{ dayjs(ticket.showtime.startTime).format('HH:mm') }}</strong>
+              <span>{{ dayjs(ticket.showtime.startTime).format('DD/MM/YYYY') }}</span>
+            </div>
+            <div>
+              <span class="field-label">Rạp / Phòng</span>
+              <strong>{{ ticket.showtime.room.branch.name }}</strong>
+              <span>{{ ticket.showtime.room.name }}</span>
+            </div>
+            <div>
+              <span class="field-label">Ghế</span>
+              <strong>{{ getSeats(ticket.seats) }}</strong>
+            </div>
+            <div>
+              <span class="field-label">Combo</span>
+              <strong>{{ getProducts(ticket) }}</strong>
+            </div>
+          </div>
+
+          <div class="ticket-footer">
+            <span>Đã thanh toán</span>
+            <strong>{{ getTotal(ticket) | number:'1.0-0' }} đ</strong>
+          </div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>

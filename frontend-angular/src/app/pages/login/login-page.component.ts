@@ -56,7 +56,8 @@ export class LoginPageComponent {
         }).subscribe({
             next: (response) => {
                 if (response.success && response.data) {
-                    const redirectTo = this.route.snapshot.queryParamMap.get('redirectTo') || '/home';
+                    const requestedRedirect = this.route.snapshot.queryParamMap.get('redirectTo');
+                    const redirectTo = this.getSafeRedirect(requestedRedirect);
                     this.router.navigateByUrl(redirectTo);
                 }
                 else {
@@ -71,5 +72,18 @@ export class LoginPageComponent {
                 this.loading = false;
             }
         });
+    }
+
+    private getSafeRedirect(redirectTo: string | null): string {
+        if (!redirectTo || !redirectTo.startsWith('/')) {
+            return '/home';
+        }
+
+        const path = redirectTo.split('?')[0].split('#')[0];
+        if (path === '/login' || path === '/register') {
+            return '/home';
+        }
+
+        return redirectTo;
     }
 }

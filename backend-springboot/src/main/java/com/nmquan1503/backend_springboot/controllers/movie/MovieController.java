@@ -42,6 +42,18 @@ public class MovieController {
         return ResponseEntity.ok().body(response);
     }
 
+    @GetMapping("/catalog/search")
+    ResponseEntity<ApiResponse<Page<MovieListItemResponse>>> searchMovieCatalog(
+            @RequestParam(defaultValue = "") String query,
+            @RequestParam(required = false) Byte categoryId,
+            Pageable pageable
+    ) {
+        ApiResponse<Page<MovieListItemResponse>> response = ApiResponse.success(
+                movieService.searchMovieCatalog(query, categoryId, pageable)
+        );
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping("/list/now-showing")
     ResponseEntity<ApiResponse<Page<MovieListItemResponse>>> getNowShowingMovieListItems(
             Pageable pageable

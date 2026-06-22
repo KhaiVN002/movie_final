@@ -1,0 +1,51 @@
+<div class="support-admin">
+  <div class="page-header">
+    <div>
+      <h1>Yêu cầu hỗ trợ</h1>
+      <p>Thông báo do khách hàng gửi từ biểu mẫu trợ giúp trên website.</p>
+    </div>
+    <button class="mark-all-button" (click)="markAllAsRead()">Đánh dấu đã đọc tất cả</button>
+  </div>
+
+  <div class="filters">
+    <div class="search-box">
+      <i class="fas fa-search"></i>
+      <input
+        type="text"
+        [(ngModel)]="searchQuery"
+        placeholder="Tìm theo nội dung hoặc người gửi..."
+      >
+    </div>
+    <label class="unread-filter">
+      <input type="checkbox" [(ngModel)]="unreadOnly" (change)="loadRequests()">
+      Chỉ hiển thị chưa đọc
+    </label>
+  </div>
+
+  <div class="loading" *ngIf="isLoading">Đang tải yêu cầu hỗ trợ...</div>
+
+  <div class="request-list" *ngIf="!isLoading">
+    <article
+      *ngFor="let item of filteredRequests"
+      class="request-card"
+      [class.unread]="!item.read"
+      (click)="markAsRead(item)"
+    >
+      <div class="request-head">
+        <div>
+          <strong>{{ item.userName }}</strong>
+          <span *ngIf="item.userEmail">{{ item.userEmail }}</span>
+        </div>
+        <div class="request-meta">
+          <span class="status">{{ item.read ? 'Đã đọc' : 'Mới' }}</span>
+          <time>{{ item.createdAt | date:'dd/MM/yyyy HH:mm' }}</time>
+        </div>
+      </div>
+      <p>{{ item.message }}</p>
+    </article>
+
+    <div class="empty-state" *ngIf="filteredRequests.length === 0">
+      Không có yêu cầu hỗ trợ phù hợp.
+    </div>
+  </div>
+</div>

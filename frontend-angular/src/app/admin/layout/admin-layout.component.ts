@@ -1,12 +1,22 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
-import { Subscription, filter } from 'rxjs';
+import { Subscription, filter, timer } from 'rxjs';
 import { AuthenticationService } from '../../core/services/authentication/authentication.service';
+import {
+  SupportRequestService
+} from '../../core/services/support/support-request.service';
 
 interface Breadcrumb {
   label: string;
   url: string;
+}
+
+interface AdminNotification {
+  id: number;
+  text: string;
+  time: string;
+  read: boolean;
 }
 
 @Component({
@@ -23,6 +33,7 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
   showNotifications = false;
   breadcrumbs: Breadcrumb[] = [];
   private routerSub?: Subscription;
+  private notificationSub?: Subscription;
 
   menuGroups = {
     analytics: true,
@@ -32,11 +43,8 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
     system: true
   };
 
-  notifications = [
-    { id: 1, text: 'New admin data is available.', time: '10 minutes ago', read: false },
-    { id: 2, text: 'Showtime list defaults to upcoming screenings.', time: '1 hour ago', read: true },
-    { id: 3, text: 'Database indexes have been refreshed.', time: '1 day ago', read: true }
-  ];
+  notifications: AdminNotification[] = [];
+  unreadNotificationsTotal = 0;
 
   private labels: Record<string, string> = {
     dashboard: 'Tổng quan',
@@ -54,12 +62,14 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
     roles: 'Vai trò',
     config: 'Giá vé',
     lookups: 'Cài đặt tra cứu',
-    logs: 'Nhật ký hoạt động'
+    logs: 'Nhật ký hoạt động',
+    support: 'Yêu cầu hỗ trợ'
   };
 
   constructor(
     private authService: AuthenticationService,
-    private router: Router
+    private router: Router,
+    private supportRequestService: SupportRequestService
   ) {
     const token = this.authService.getAccessToken();
     if (token) {
@@ -78,10 +88,12 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
       this.generateBreadcrumbs(url);
       this.autoExpandGroup(url);
     });
+    this.notificationSub = timer(0, 30000).subscribe(() => this.loadNotifications());
   }
 
   ngOnDestroy(): void {
     this.routerSub?.unsubscribe();
+    this.notificationSub?.unsubscribe();
   }
 
   toggleSidebar(): void {
@@ -107,11 +119,26 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
   }
 
   markAllNotificationsAsRead(): void {
-    this.notifications.forEach(item => item.read = true);
+    this.supportRequestService.markAllAsRead().subscribe({
+      next: () => {
+        this.notifications.forEach(item => item.read = true);
+        this.unreadNotificationsTotal = 0;
+      }
+    });
   }
 
   get unreadNotificationsCount(): number {
-    return this.notifications.filter(item => !item.read).length;
+    return this.unreadNotificationsTotal;
+  }
+
+  openSupportRequest(notification: AdminNotification): void {
+    this.showNotifications = false;
+    if (!notification.read) {
+      this.supportRequestService.markAsRead(notification.id).subscribe();
+      notification.read = true;
+      this.unreadNotificationsTotal = Math.max(0, this.unreadNotificationsTotal - 1);
+    }
+    this.router.navigate(['/admin/support']);
   }
 
   logout(): void {
@@ -126,7 +153,7 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
     if (url.includes('/admin/movies') || url.includes('/admin/showtimes') || url.includes('/admin/cinemas') || url.includes('/admin/branches') || url.includes('/admin/rooms') || url.includes('/admin/seats')) this.menuGroups.cinema = true;
     if (url.includes('/admin/products') || url.includes('/admin/product-branches')) this.menuGroups.concessions = true;
     if (url.includes('/admin/users') || url.includes('/admin/roles') || url.includes('/admin/bookings') || url.includes('/admin/payments')) this.menuGroups.customers = true;
-    if (url.includes('/admin/config') || url.includes('/admin/lookups') || url.includes('/admin/logs')) this.menuGroups.system = true;
+    if (url.includes('/admin/config') || url.includes('/admin/lookups') || url.includes('/admin/logs') || url.includes('/admin/support')) this.menuGroups.system = true;
   }
 
   private generateBreadcrumbs(url: string): void {
@@ -153,6 +180,33 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
     } catch {
       return null;
     }
+  }
+
+  private loadNotifications(): void {
+    this.supportRequestService.getAdminRequests(0, 8).subscribe({
+      next: response => {
+        const requests = response.data?.content || [];
+        this.notifications = requests.map(item => ({
+          id: item.id,
+          text: `${item.userName}: ${item.message}`,
+          time: this.formatNotificationTime(item.createdAt),
+          read: item.read
+        }));
+      }
+    });
+    this.supportRequestService.getUnreadCount().subscribe({
+      next: response => this.unreadNotificationsTotal = response.data || 0
+    });
+  }
+
+  private formatNotificationTime(createdAt: string): string {
+    const elapsed = Date.now() - new Date(createdAt).getTime();
+    const minutes = Math.max(0, Math.floor(elapsed / 60000));
+    if (minutes < 1) return 'Vừa xong';
+    if (minutes < 60) return `${minutes} phút trước`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours} giờ trước`;
+    return `${Math.floor(hours / 24)} ngày trước`;
   }
 
   private toTitle(value: string): string {

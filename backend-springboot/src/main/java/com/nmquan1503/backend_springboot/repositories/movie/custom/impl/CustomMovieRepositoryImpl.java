@@ -121,44 +121,23 @@ public class CustomMovieRepositoryImpl implements CustomMovieRepository {
     @Override
     public Page<Movie> findUpComingSortByFinalScore(Pageable pageable) {
         QMovie movie = QMovie.movie;
-        QShowtime showtime = QShowtime.showtime;
 
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime oneMonthAgo = now.minusMonths(1);
-
-        // Lọc các movie sắp chiếu: có showtime > now, không có showtime trong 1 tháng trước đến now
-        List<Long> movieIds = queryFactory
-                .select(showtime.movie.id)
-                .from(showtime)
-                .where(showtime.startTime.goe(oneMonthAgo))
-                .groupBy(showtime.movie.id)
-                .having(
-                        // ít nhất 1 showtime sắp tới
-                        Expressions.numberTemplate(Long.class,
-                                "SUM(CASE WHEN {0} > {1} THEN 1 ELSE 0 END)",
-                                showtime.startTime, now
-                        ).gt(0),
-                        // không có showtime trong 1 tháng trước đến now
-                        Expressions.numberTemplate(Long.class,
-                                "SUM(CASE WHEN {0} BETWEEN {1} AND {2} THEN 1 ELSE 0 END)",
-                                showtime.startTime, oneMonthAgo, now
-                        ).eq(0L)
-                )
-                .fetch();
-
-        // Lấy movie và sắp xếp theo số lượng showtime sắp tới (trending)
         List<Movie> movies = queryFactory
                 .select(movie)
                 .from(movie)
-                .join(showtime).on(showtime.movie.id.eq(movie.id))
-                .where(movie.id.in(movieIds).and(showtime.startTime.after(now))) // chỉ showtime sắp tới
-                .groupBy(movie.id)
-                .orderBy(showtime.count().desc()) // nhiều showtime sắp tới → trending
+                .where(movie.releasedDate.after(java.time.LocalDate.now()))
+                .orderBy(movie.releasedDate.asc(), movie.id.asc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
 
-        return new PageImpl<>(movies, pageable, movieIds.size());
+        Long total = queryFactory
+                .select(movie.count())
+                .from(movie)
+                .where(movie.releasedDate.after(java.time.LocalDate.now()))
+                .fetchOne();
+
+        return new PageImpl<>(movies, pageable, total == null ? 0 : total);
     }
 
     @Override

@@ -1,12 +1,9 @@
-import { Component, OnInit, ViewEncapsulation } from "@angular/core";
+import { Component } from "@angular/core";
 import { RouterModule } from "@angular/router";
-import { RoomTypeService } from "../../../core/services/theater/room-type.service";
-import { RoomTypeIconResponse } from "../../../core/models/responses/theater/room-type-icon-response.model";
-import { SlideShowComponent } from "../slideshow/slideshow.component";
-import { SlideItemComponent } from "../slideshow/slide-item/slide-item.component";
 import { CommonModule } from "@angular/common";
-import { ApiResponse } from "../../../core/models/responses/api-response.model";
-import { BaseComponent } from "../base/base.component";
+import { FormsModule } from "@angular/forms";
+import { finalize } from "rxjs";
+import { SupportRequestService } from "../../../core/services/support/support-request.service";
 
 @Component({
     standalone:true,
@@ -17,9 +14,47 @@ import { BaseComponent } from "../base/base.component";
     ],
     imports: [
         RouterModule,
-        CommonModule
+        CommonModule,
+        FormsModule
     ]
 })
 export class FooterComponent {
+    supportMessage = '';
+    supportFeedback = '';
+    supportError = false;
+    isSubmittingSupport = false;
+
+    constructor(private supportRequestService: SupportRequestService) {}
+
+    submitSupportRequest(): void {
+        const message = this.supportMessage.trim();
+        this.supportFeedback = '';
+        this.supportError = false;
+
+        if (message.length < 5) {
+            this.supportFeedback = 'Vui lòng mô tả vấn đề ít nhất 5 ký tự.';
+            this.supportError = true;
+            return;
+        }
+
+        this.isSubmittingSupport = true;
+        this.supportRequestService.create(message).pipe(
+            finalize(() => this.isSubmittingSupport = false)
+        ).subscribe({
+            next: response => {
+                if (response.success) {
+                    this.supportMessage = '';
+                    this.supportFeedback = 'Yêu cầu đã được gửi tới quản trị viên.';
+                    return;
+                }
+                this.supportFeedback = response.message || 'Không thể gửi yêu cầu lúc này.';
+                this.supportError = true;
+            },
+            error: () => {
+                this.supportFeedback = 'Không thể gửi yêu cầu lúc này. Vui lòng thử lại.';
+                this.supportError = true;
+            }
+        });
+    }
 
 }

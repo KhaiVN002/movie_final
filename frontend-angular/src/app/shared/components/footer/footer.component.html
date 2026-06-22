@@ -4,11 +4,28 @@
             <div class="support-wrapper">
                 <h5 class="support-title">CẦN TRỢ GIÚP?</h5>
                 <h3 class="support-heading">MÔ TẢ VẤN ĐỀ BẠN GẶP PHẢI</h3>
-                <div class="support-form">
-                    <input class="support-input" type="text" placeholder="Ví dụ: Tôi không đăng nhập được...">
-                    <a class="support-button">Trợ giúp ngay</a>
-                </div>
-                <p class="support-note">Chúng tôi sẽ hướng dẫn bạn giải quyết vấn đề ngay lập tức.</p>
+                <form class="support-form" (ngSubmit)="submitSupportRequest()">
+                    <input
+                        class="support-input"
+                        type="text"
+                        name="supportMessage"
+                        [(ngModel)]="supportMessage"
+                        maxlength="1000"
+                        placeholder="Ví dụ: Tôi không đăng nhập được..."
+                        [disabled]="isSubmittingSupport"
+                    >
+                    <button class="support-button" type="submit" [disabled]="isSubmittingSupport">
+                        {{ isSubmittingSupport ? 'Đang gửi...' : 'Trợ giúp ngay' }}
+                    </button>
+                </form>
+                <p
+                    *ngIf="supportFeedback"
+                    class="support-feedback"
+                    [class.error]="supportError"
+                >
+                    {{ supportFeedback }}
+                </p>
+                <p class="support-note" *ngIf="!supportFeedback">Yêu cầu của bạn sẽ được chuyển tới quản trị viên.</p>
             </div>
         </div>
     </div>

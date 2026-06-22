@@ -52,13 +52,11 @@ public class JwtFilter extends OncePerRequestFilter {
                                     FilterChain filterChain)
             throws ServletException, IOException {
 
-        // ✅ 1. Skip public endpoint
         if (isPublicEndpoint(request)) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        // ✅ 2. Lấy header
         String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {

@@ -10,8 +10,11 @@
             Thanh toán thất bại.
         </p>
         <div>
-            <span>Quay lại </span>
-            <a class="note" [routerLink]="['/home']">Trang chủ</a>
+            <ng-container *ngIf="status === 'success'">
+                <a class="note" [routerLink]="['/my-tickets']">Xem vé của tôi</a>
+                <span> hoặc </span>
+            </ng-container>
+            <a class="note" [routerLink]="['/home']">Quay lại trang chủ</a>
         </div>
     </div>
 </div>

@@ -35,10 +35,33 @@ class AuthenticationService implements OnDestroy {
 
     init(): Promise<void> {
         return new Promise((resolve) => {
-            this.tryRefresh().subscribe({
-                complete: resolve
+            const accessToken = this.getAccessToken();
+            if (!accessToken) {
+                this.tryRefresh().subscribe({ complete: resolve });
+                return;
+            }
+
+            this.introspect(accessToken).subscribe({
+                next: response => {
+                    if (response.success && response.data?.valid) {
+                        this.loggedIn.next(true);
+                        this.startTokenRefresh();
+                        this.refreshing.next(false);
+                        resolve();
+                        return;
+                    }
+                    this.tryRefresh().subscribe({ complete: resolve });
+                },
+                error: () => this.tryRefresh().subscribe({ complete: resolve })
             });
         });
+    }
+
+    private introspect(accessToken: string): Observable<ApiResponse<{ valid: boolean }>> {
+        return this.http.post<ApiResponse<{ valid: boolean }>>(
+            `${this.apiUrl}/introspect`,
+            { accessToken }
+        );
     }
 
     tryRefresh(): Observable<ApiResponse<AuthenticationResponse>> {
@@ -51,11 +74,11 @@ class AuthenticationService implements OnDestroy {
                 }
                 else {
                     console.log(`api error: ${response.message}`);
-                    this.loggedIn.next(this.hasValidAccessToken());
+                    this.clearAuthenticationState();
                 }
             }),
             catchError(() => {
-                this.loggedIn.next(this.hasValidAccessToken());
+                this.clearAuthenticationState();
                 return EMPTY;
             }),
             finalize(() => this.refreshing.next(false))
@@ -107,30 +130,12 @@ class AuthenticationService implements OnDestroy {
             }
         ).pipe(
             tap((response) => {
-                if (response.success) {
-                    this.loggedIn.next(false);
-                    this.removeAccessToken();
-                    this.stopTokenRefresh();
-                }
-                else {
+                if (!response.success) {
                     console.log(`api error: ${response.message}`);
                 }
-            })
+            }),
+            finalize(() => this.clearAuthenticationState())
         );
-    }
-
-    private hasValidAccessToken(): boolean {
-        const token = this.getAccessToken();
-        if (!token) {
-            return false;
-        }
-
-        const payload = this.decodeJwtPayload(token);
-        if (!payload?.exp) {
-            return false;
-        }
-
-        return payload.exp * 1000 > Date.now();
     }
 
     private setAccessToken(token: string): void {
@@ -145,30 +150,12 @@ class AuthenticationService implements OnDestroy {
         return this.localStorageService.getItem('access_token');
     }
 
-    private decodeJwtPayload(token: string): { exp?: number } | null {
-        try {
-            const payload = token.split('.')[1];
-            if (!payload) {
-                return null;
-            }
-
-            const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
-            const paddedBase64 = base64.padEnd(base64.length + (4 - base64.length % 4) % 4, '=');
-            return JSON.parse(atob(paddedBase64));
-        }
-        catch {
-            return null;
-        }
-    }
-
     private startTokenRefresh(): void {
         this.stopTokenRefresh();
         this.refreshSub = interval(12 * 60 * 1000).pipe(
             switchMap(() => this.refresh()),
             catchError(err => {
-                this.removeAccessToken();
-                this.stopTokenRefresh();
-                this.loggedIn.next(false);
+                this.clearAuthenticationState();
                 return EMPTY;
             })
         ).subscribe(response => {
@@ -177,11 +164,15 @@ class AuthenticationService implements OnDestroy {
                 this.loggedIn.next(true);
             }
             else {
-                this.loggedIn.next(false);
-                this.removeAccessToken();
-                this.stopTokenRefresh();
+                this.clearAuthenticationState();
             }
         });
+    }
+
+    private clearAuthenticationState(): void {
+        this.removeAccessToken();
+        this.stopTokenRefresh();
+        this.loggedIn.next(false);
     }
 
     private stopTokenRefresh(): void {

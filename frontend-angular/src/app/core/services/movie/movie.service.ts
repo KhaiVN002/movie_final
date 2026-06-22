@@ -45,6 +45,21 @@ class MovieService {
         );
     }
 
+    searchMovieCatalog(
+        pageable: PageRequest,
+        query: string,
+        categoryId: number | null
+    ): Observable<ApiResponse<Page<MovieListItemResponse>>> {
+        let params = buildPageParams(pageable).set('query', query.trim());
+        if (categoryId !== null) {
+            params = params.set('categoryId', categoryId.toString());
+        }
+        return this.http.get<ApiResponse<Page<MovieListItemResponse>>>(
+            `${this.apiUrl}/catalog/search`,
+            { params }
+        );
+    }
+
     getNowShowingListItems(
         pageable: PageRequest
     ): Observable<ApiResponse<Page<MovieListItemResponse>>> {

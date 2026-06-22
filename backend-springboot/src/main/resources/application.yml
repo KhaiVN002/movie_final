@@ -27,12 +27,13 @@ spring:
                     time_zone: Asia/Ho_Chi_Minh
                 order_inserts: true
                 order_updates: true
-    redis:
-        host: ${REDIS_HOST}
-        port: ${REDIS_PORT}
-        password: ${REDIS_PASSWORD}
-        database: ${REDIS_DATABASE}
-        timeout: 2000
+    data:
+        redis:
+            host: ${REDIS_HOST:localhost}
+            port: ${REDIS_PORT:6379}
+            password: ${REDIS_PASSWORD:}
+            database: ${REDIS_DATABASE:0}
+            timeout: 2s
     devtools:
         restart:
             enabled: true

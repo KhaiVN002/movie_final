@@ -10,6 +10,7 @@ import { AdminBookingsComponent } from './pages/bookings/admin-bookings.componen
 import { AdminUsersComponent } from './pages/users/admin-users.component';
 import { AdminLogsComponent } from './pages/logs/admin-logs.component';
 import { AdminResourceListComponent } from './pages/resource-list/admin-resource-list.component';
+import { AdminSupportComponent } from './pages/support/admin-support.component';
 
 export const ADMIN_ROUTES: Routes = [
     {
@@ -140,7 +141,8 @@ export const ADMIN_ROUTES: Routes = [
                     columns: []
                 }
             },
-            { path: 'logs', component: AdminLogsComponent }
+            { path: 'logs', component: AdminLogsComponent },
+            { path: 'support', component: AdminSupportComponent }
         ]
     }
 ];

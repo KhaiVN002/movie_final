@@ -39,6 +39,12 @@
                         <li><a [routerLink]="['/']">CGV Rules</a></li>
                     </ul>
                 </li> -->
+                <li class="my-tickets-link">
+                    <a [routerLink]="['/my-tickets']" (click)="closeMenu()">
+                        <i class="fas fa-ticket-alt"></i>
+                        Vé của tôi
+                    </a>
+                </li>
                 <li *ngIf="!user" class="login-signup-btn">
                     <a [routerLink]="['/login']">Đăng nhập</a>
                 </li>
@@ -52,6 +58,7 @@
                     <ul class="submenu">
                         <li *ngIf="isAdmin"><a [routerLink]="['/admin']">Quản trị</a></li>
                         <li><a [routerLink]="['/profile']">Hồ sơ</a></li>
+                        <li><a [routerLink]="['/my-tickets']">Vé của tôi</a></li>
                         <li><a [style.cursor]="'pointer'" (click)="logout()" >Đăng xuất</a></li>
                     </ul>
                 </li>
