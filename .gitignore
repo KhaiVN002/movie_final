@@ -4,5 +4,5 @@
 **/target/
 **/dist/
 **/.angular/cache/
-
+database/02_data.sql
 backend-springboot/uploads/
